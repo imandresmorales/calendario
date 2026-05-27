@@ -17,13 +17,13 @@
   
   --accent: hsl(262, 83%, 58%);
   --accent-hover: hsl(262, 83%, 52%);
-  --accent-glow: rgba(124, 58, 237, 0.15);
+  --accent-glow: rgba(124, 58, 237, 0.1);
   
   --border-color: hsl(var(--hue), 15%, 88%);
   --border-glow: rgba(124, 58, 237, 0.2);
   
   /* Glassmorphism Styles */
-  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-bg: rgba(255, 255, 255, 0.55);
   --glass-border: rgba(255, 255, 255, 0.4);
   --glass-blur: blur(12px);
   
@@ -31,7 +31,7 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.08);
-  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.04), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
   
   /* Event Categories Colors */
   --color-work: hsl(210, 85%, 55%);
@@ -56,21 +56,21 @@
 /* Dark Mode Overrides */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-primary: hsl(var(--hue), 16%, 10%);
-    --bg-secondary: hsl(var(--hue), 14%, 15%);
+    --bg-primary: hsl(var(--hue), 16%, 9%);
+    --bg-secondary: hsl(var(--hue), 14%, 13%);
     --text-primary: hsl(var(--hue), 10%, 94%);
     --text-secondary: hsl(var(--hue), 10%, 68%);
     --text-muted: hsl(var(--hue), 8%, 45%);
     
     --accent: hsl(262, 89%, 68%);
     --accent-hover: hsl(262, 89%, 74%);
-    --accent-glow: rgba(167, 139, 250, 0.25);
+    --accent-glow: rgba(167, 139, 250, 0.2);
     
-    --border-color: hsl(var(--hue), 12%, 20%);
+    --border-color: hsl(var(--hue), 12%, 18%);
     --border-glow: rgba(167, 139, 250, 0.3);
     
-    --glass-bg: rgba(18, 18, 28, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-bg: rgba(15, 15, 25, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.05);
     
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
     --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
@@ -140,14 +140,14 @@ a {
   color: inherit;
 }
 
-/* Scrollbar Customization for modern browsers */
+/* Scrollbar Customization */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -164,4 +164,322 @@ a {
 ::selection {
   background-color: var(--accent-glow);
   color: var(--accent);
+}
+
+/* ==========================================================================
+   GLASSMORPHISM & LAYOUT STYLES
+   ========================================================================== */
+
+.glass-card {
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-glass);
+}
+
+.calendar-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .calendar-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+}
+
+/* ==========================================================================
+   SIDEBAR COMPONENT
+   ========================================================================== */
+
+.calendar-sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 28px;
+  height: calc(100vh - 48px);
+  position: sticky;
+  top: 24px;
+}
+
+@media (max-width: 1024px) {
+  .calendar-sidebar {
+    height: auto;
+    position: relative;
+    top: 0;
+    padding: 20px;
+  }
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-dot {
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, var(--accent), hsl(280, 85%, 65%));
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--accent);
+}
+
+.logo-area h2 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  background-color: var(--accent-glow);
+  color: var(--accent);
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-glow);
+}
+
+/* Selected Date Preview Widget */
+.selected-date-preview {
+  margin-bottom: 28px;
+}
+
+.selected-date-preview .weekday-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.selected-date-preview .day-number {
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1;
+  margin: 4px 0;
+  background: linear-gradient(180deg, var(--text-primary) 30%, var(--text-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.selected-date-preview .month-year-label {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-color);
+  margin-bottom: 28px;
+  width: 100%;
+}
+
+/* Events Area */
+.upcoming-events-section h3,
+.filters-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+.upcoming-events-section {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 24px;
+}
+
+.events-list-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.no-events-text {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Category Filters */
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.category-item:hover {
+  color: var(--text-primary);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dot-work { background-color: var(--color-work); box-shadow: 0 0 8px var(--color-work); }
+.dot-personal { background-color: var(--color-personal); box-shadow: 0 0 8px var(--color-personal); }
+.dot-meeting { background-color: var(--color-meeting); box-shadow: 0 0 8px var(--color-meeting); }
+.dot-holiday { background-color: var(--color-holiday); box-shadow: 0 0 8px var(--color-holiday); }
+
+/* ==========================================================================
+   MAIN CALENDAR VIEW
+   ========================================================================== */
+
+.calendar-main {
+  display: flex;
+  flex-direction: column;
+  padding: 28px;
+  height: calc(100vh - 48px);
+}
+
+@media (max-width: 1024px) {
+  .calendar-main {
+    height: auto;
+    min-height: 500px;
+    padding: 20px;
+  }
+}
+
+/* Header & Controls */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.navigation-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navigation-controls h2 {
+  font-size: 22px;
+  font-weight: 700;
+  min-width: 140px;
+  text-align: center;
+}
+
+.nav-btn, .today-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-fast);
+}
+
+.nav-btn:hover, .today-btn:hover {
+  background-color: var(--border-color);
+  border-color: var(--text-muted);
+}
+
+.nav-btn:active, .today-btn:active {
+  transform: scale(0.97);
+}
+
+.today-btn {
+  background-color: var(--accent-glow);
+  color: var(--accent);
+  border: 1px solid var(--border-glow);
+}
+
+.today-btn:hover {
+  background-color: var(--accent);
+  color: #fff;
+}
+
+/* View Selector Tab */
+.view-selector {
+  display: flex;
+  padding: 4px;
+  gap: 4px;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--bg-secondary);
+  box-shadow: none;
+}
+
+.view-btn {
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: calc(var(--border-radius-sm) - 2px);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.view-btn:hover {
+  color: var(--text-primary);
+}
+
+.view-btn.active {
+  background-color: var(--bg-primary);
+  color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+/* View Container Draft */
+.calendar-view-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.month-grid-draft {
+  padding: 40px;
+  text-align: center;
+}
+
+.draft-placeholder {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-muted);
 }
