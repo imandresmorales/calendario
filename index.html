@@ -1,12 +1,37 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>calendario</title>
+
+    <!-- SEO Meta Tags -->
+    <title>AstroCal - Calendario Premium en React</title>
+    <meta name="description" content="AstroCal es un calendario interactivo y premium construido en React. Gestiona tus eventos por mes, año, día y agenda con una interfaz moderna y segura." />
+    <meta name="author" content="Alex Morales" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:title" content="AstroCal - Calendario Premium" />
+    <meta property="og:description" content="Gestiona tus eventos con un calendario moderno, seguro y elegante." />
+    <meta property="og:type" content="website" />
+
+    <!-- Seguridad: Content Security Policy básica -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Preconnect para Google Fonts (rendimiento) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
   <body>
+    <!-- Accesibilidad: noscript fallback -->
+    <noscript>
+      <p>Necesitas habilitar JavaScript para usar AstroCal.</p>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
