@@ -1,27 +1,42 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useCalendar } from './context/CalendarContext'
+import { getMonthNames, getWeekdayName } from './utils/dateUtils'
 
 function App() {
-  const [activeView, setActiveView] = useState('month') // 'month' | 'year' | 'day' | 'agenda'
+  const {
+    selectedDate,
+    viewDate,
+    activeView,
+    goToPreviousMonth,
+    goToNextMonth,
+    goToToday,
+    setActiveView,
+  } = useCalendar()
+
+  const monthNames = getMonthNames()
+  const weekdayName = getWeekdayName(selectedDate.year, selectedDate.month, selectedDate.day)
 
   return (
     <div className="calendar-layout">
       {/* Sidebar: Event manager & filters */}
-      <aside className="calendar-sidebar glass-card">
+      <aside className="calendar-sidebar glass-card" role="complementary" aria-label="Panel lateral del calendario">
         <div className="sidebar-header">
           <div className="logo-area">
-            <span className="logo-dot"></span>
+            <span className="logo-dot" aria-hidden="true"></span>
             <h2>AstroCal</h2>
           </div>
           <span className="badge">v1.0.0</span>
         </div>
 
         <div className="selected-date-preview">
-          <p className="weekday-label">Martes</p>
-          <h1 className="day-number">26</h1>
-          <p className="month-year-label">Mayo, 2026</p>
+          <p className="weekday-label">{weekdayName}</p>
+          <h1 className="day-number">{selectedDate.day}</h1>
+          <p className="month-year-label">
+            {monthNames[selectedDate.month]}, {selectedDate.year}
+          </p>
         </div>
 
-        <div className="divider"></div>
+        <div className="divider" role="separator"></div>
 
         {/* Placeholder for Events List */}
         <div className="upcoming-events-section">
@@ -36,19 +51,19 @@ function App() {
           <h3>Categorías</h3>
           <div className="category-list">
             <label className="category-item">
-              <span className="dot dot-work"></span>
+              <span className="dot dot-work" aria-hidden="true"></span>
               Trabajo
             </label>
             <label className="category-item">
-              <span className="dot dot-personal"></span>
+              <span className="dot dot-personal" aria-hidden="true"></span>
               Personal
             </label>
             <label className="category-item">
-              <span className="dot dot-meeting"></span>
+              <span className="dot dot-meeting" aria-hidden="true"></span>
               Reuniones
             </label>
             <label className="category-item">
-              <span className="dot dot-holiday"></span>
+              <span className="dot dot-holiday" aria-hidden="true"></span>
               Festivos
             </label>
           </div>
@@ -56,25 +71,29 @@ function App() {
       </aside>
 
       {/* Main Calendar View Area */}
-      <main className="calendar-main glass-card">
+      <main className="calendar-main glass-card" role="main" aria-label="Vista principal del calendario">
         {/* Navigation & Header */}
         <header className="calendar-header">
           <div className="navigation-controls">
-            <button className="nav-btn" aria-label="Mes anterior">
-              &lt;
+            <button className="nav-btn" aria-label="Mes anterior" onClick={goToPreviousMonth}>
+              ◀
             </button>
-            <h2 className="current-period">Mayo 2026</h2>
-            <button className="nav-btn" aria-label="Mes siguiente">
-              &gt;
+            <h2 className="current-period">
+              {monthNames[viewDate.month]} {viewDate.year}
+            </h2>
+            <button className="nav-btn" aria-label="Mes siguiente" onClick={goToNextMonth}>
+              ▶
             </button>
-            <button className="today-btn">Hoy</button>
+            <button className="today-btn" onClick={goToToday}>Hoy</button>
           </div>
 
           {/* View Mode Toggle Buttons */}
-          <div className="view-selector glass-card">
+          <div className="view-selector glass-card" role="tablist" aria-label="Selector de vista del calendario">
             {['month', 'year', 'day', 'agenda'].map((view) => (
               <button
                 key={view}
+                role="tab"
+                aria-selected={activeView === view}
                 className={`view-btn ${activeView === view ? 'active' : ''}`}
                 onClick={() => setActiveView(view)}
               >
@@ -87,11 +106,11 @@ function App() {
           </div>
         </header>
 
-        {/* Month grid layout draft */}
-        <div className="calendar-view-container">
+        {/* Calendar view container */}
+        <div className="calendar-view-container" role="tabpanel">
           <div className="month-grid-draft">
             <p className="draft-placeholder">
-              Rejilla del Calendario ({activeView}) cargándose...
+              Vista de {activeView === 'month' ? 'Mes' : activeView === 'year' ? 'Año' : activeView === 'day' ? 'Día' : 'Agenda'} — próximamente
             </p>
           </div>
         </div>
