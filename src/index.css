@@ -483,3 +483,79 @@ a {
   font-weight: 500;
   color: var(--text-muted);
 }
+
+/* ==========================================================================
+   ERROR BOUNDARY FALLBACK
+   ========================================================================== */
+
+.error-boundary-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  animation: fadeIn var(--transition-normal) ease-out;
+}
+
+.error-boundary-content {
+  max-width: 440px;
+  width: 100%;
+  padding: 48px 36px;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.error-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.error-description {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.error-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.error-btn {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.error-btn-primary {
+  background-color: var(--accent);
+  color: #fff;
+}
+
+.error-btn-primary:hover {
+  background-color: var(--accent-hover);
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+
+.error-btn-secondary {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.error-btn-secondary:hover {
+  background-color: var(--border-color);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
