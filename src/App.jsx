@@ -5,6 +5,7 @@ import MonthGrid from './components/MonthGrid/MonthGrid'
 import YearView from './components/YearView/YearView'
 import DayView from './components/DayView/DayView'
 import AgendaView from './components/AgendaView/AgendaView'
+import { useKeyboardNavigation } from './hooks/useKeyboardNavigation'
 
 function App() {
   const {
@@ -18,6 +19,7 @@ function App() {
   } = useCalendar()
 
   const monthNames = getMonthNames()
+  useKeyboardNavigation() // Activar navegación por teclado (flechas, Home, End, Escape)
   const weekdayName = getWeekdayName(selectedDate.year, selectedDate.month, selectedDate.day)
 
   /**
