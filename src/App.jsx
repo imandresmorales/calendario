@@ -2,6 +2,7 @@ import React from 'react'
 import { useCalendar } from './context/CalendarContext'
 import { getMonthNames, getWeekdayName } from './utils/dateUtils'
 import MonthGrid from './components/MonthGrid/MonthGrid'
+import YearView from './components/YearView/YearView'
 
 function App() {
   const {
@@ -27,7 +28,7 @@ function App() {
       case 'month':
         return <MonthGrid />
       case 'year':
-        return <p className="draft-placeholder">Vista Anual — próximamente</p>
+        return <YearView />
       case 'day':
         return <p className="draft-placeholder">Vista de Día — próximamente</p>
       case 'agenda':

@@ -674,3 +674,109 @@ a {
     height: 28px;
   }
 }
+
+/* ==========================================================================
+   YEAR VIEW COMPONENT
+   ========================================================================== */
+
+.year-view {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  width: 100%;
+  padding: 8px;
+  animation: fadeIn var(--transition-normal) ease-out;
+}
+
+@media (max-width: 1024px) {
+  .year-view {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .year-view {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+.year-view__month-card {
+  padding: 12px;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.year-view__month-card:hover {
+  border-color: var(--accent);
+  background-color: var(--accent-glow);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.year-view__month-card--current {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.year-view__month-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.year-view__month-card--current .year-view__month-title {
+  color: var(--accent);
+}
+
+/* Mini Month Sub-component */
+.mini-month__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  margin-bottom: 4px;
+}
+
+.mini-month__weekday {
+  font-size: 9px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.mini-month__days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+}
+
+.mini-month__day {
+  font-size: 10px;
+  text-align: center;
+  padding: 2px 0;
+  color: var(--text-secondary);
+  border-radius: 3px;
+}
+
+.mini-month__day--filler {
+  opacity: 0.25;
+}
+
+.mini-month__day--today {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+.mini-month__day--selected {
+  outline: 1px solid var(--accent);
+  border-radius: 50%;
+}
