@@ -3,6 +3,7 @@ import { useCalendar } from './context/CalendarContext'
 import { getMonthNames, getWeekdayName } from './utils/dateUtils'
 import MonthGrid from './components/MonthGrid/MonthGrid'
 import YearView from './components/YearView/YearView'
+import DayView from './components/DayView/DayView'
 
 function App() {
   const {
@@ -30,7 +31,7 @@ function App() {
       case 'year':
         return <YearView />
       case 'day':
-        return <p className="draft-placeholder">Vista de Día — próximamente</p>
+        return <DayView />
       case 'agenda':
         return <p className="draft-placeholder">Vista Agenda — próximamente</p>
       default:
