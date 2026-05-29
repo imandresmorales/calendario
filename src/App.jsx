@@ -4,6 +4,7 @@ import { getMonthNames, getWeekdayName } from './utils/dateUtils'
 import MonthGrid from './components/MonthGrid/MonthGrid'
 import YearView from './components/YearView/YearView'
 import DayView from './components/DayView/DayView'
+import AgendaView from './components/AgendaView/AgendaView'
 
 function App() {
   const {
@@ -21,8 +22,7 @@ function App() {
 
   /**
    * Renderiza la vista activa del calendario.
-   * Solo MonthGrid está implementado por ahora; las demás vistas
-   * se irán añadiendo en mejoras posteriores.
+   * Las 4 vistas están implementadas: Mes, Año, Día y Agenda.
    */
   const renderActiveView = () => {
     switch (activeView) {
@@ -33,7 +33,7 @@ function App() {
       case 'day':
         return <DayView />
       case 'agenda':
-        return <p className="draft-placeholder">Vista Agenda — próximamente</p>
+        return <AgendaView />
       default:
         return <MonthGrid />
     }

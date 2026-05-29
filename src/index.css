@@ -890,3 +890,114 @@ a {
     min-height: 44px;
   }
 }
+
+/* ==========================================================================
+   AGENDA VIEW COMPONENT
+   ========================================================================== */
+
+.agenda-view {
+  width: 100%;
+  padding: 8px;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  animation: fadeIn var(--transition-normal) ease-out;
+}
+
+.agenda-view__group {
+  margin-bottom: 24px;
+}
+
+.agenda-view__month-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 0;
+  border-bottom: 2px solid var(--accent-glow);
+  margin-bottom: 8px;
+}
+
+.agenda-view__day-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.agenda-view__day-row:hover {
+  background-color: var(--accent-glow);
+  border-color: var(--border-color);
+}
+
+.agenda-view__day-row--today {
+  background-color: var(--accent-glow);
+  border-color: var(--accent);
+}
+
+.agenda-view__date-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 48px;
+  flex-shrink: 0;
+}
+
+.agenda-view__day-number {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.agenda-view__day-row--today .agenda-view__day-number {
+  color: var(--accent);
+}
+
+.agenda-view__weekday {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.agenda-view__events-area {
+  flex: 1;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.agenda-view__no-events {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.agenda-view__today-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  padding: 2px 10px;
+  border-radius: var(--border-radius-sm);
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .agenda-view__day-row {
+    padding: 10px 12px;
+    gap: 12px;
+  }
+
+  .agenda-view__day-number {
+    font-size: 18px;
+  }
+}
