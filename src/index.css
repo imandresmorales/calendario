@@ -559,3 +559,118 @@ a {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ==========================================================================
+   MONTH GRID COMPONENT
+   ========================================================================== */
+
+.month-grid {
+  width: 100%;
+  padding: 8px;
+  animation: fadeIn var(--transition-normal) ease-out;
+}
+
+.month-grid__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.month-grid__weekday-name {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  padding: 8px 0;
+}
+
+.month-grid__days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.month-grid__day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 2px solid transparent;
+  background: transparent;
+}
+
+.month-grid__day:hover {
+  background-color: var(--accent-glow);
+  transform: scale(1.08);
+}
+
+.month-grid__day:active {
+  transform: scale(0.95);
+}
+
+/* Días de relleno (mes anterior/siguiente) */
+.month-grid__day--filler {
+  color: var(--text-muted);
+  opacity: 0.4;
+}
+
+.month-grid__day--filler:hover {
+  opacity: 0.7;
+}
+
+/* Día de hoy */
+.month-grid__day--today {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.month-grid__day--today .month-grid__day-number {
+  background: var(--accent);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.month-grid__today-dot {
+  position: absolute;
+  bottom: 4px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+/* Día seleccionado */
+.month-grid__day--selected {
+  border-color: var(--accent);
+  background-color: var(--accent-glow);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* Responsive: celdas más compactas en móvil */
+@media (max-width: 768px) {
+  .month-grid__day {
+    font-size: 13px;
+  }
+
+  .month-grid__day--today .month-grid__day-number {
+    width: 28px;
+    height: 28px;
+  }
+}

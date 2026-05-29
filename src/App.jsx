@@ -1,6 +1,7 @@
 import React from 'react'
 import { useCalendar } from './context/CalendarContext'
 import { getMonthNames, getWeekdayName } from './utils/dateUtils'
+import MonthGrid from './components/MonthGrid/MonthGrid'
 
 function App() {
   const {
@@ -15,6 +16,26 @@ function App() {
 
   const monthNames = getMonthNames()
   const weekdayName = getWeekdayName(selectedDate.year, selectedDate.month, selectedDate.day)
+
+  /**
+   * Renderiza la vista activa del calendario.
+   * Solo MonthGrid está implementado por ahora; las demás vistas
+   * se irán añadiendo en mejoras posteriores.
+   */
+  const renderActiveView = () => {
+    switch (activeView) {
+      case 'month':
+        return <MonthGrid />
+      case 'year':
+        return <p className="draft-placeholder">Vista Anual — próximamente</p>
+      case 'day':
+        return <p className="draft-placeholder">Vista de Día — próximamente</p>
+      case 'agenda':
+        return <p className="draft-placeholder">Vista Agenda — próximamente</p>
+      default:
+        return <MonthGrid />
+    }
+  }
 
   return (
     <div className="calendar-layout">
@@ -108,11 +129,7 @@ function App() {
 
         {/* Calendar view container */}
         <div className="calendar-view-container" role="tabpanel">
-          <div className="month-grid-draft">
-            <p className="draft-placeholder">
-              Vista de {activeView === 'month' ? 'Mes' : activeView === 'year' ? 'Año' : activeView === 'day' ? 'Día' : 'Agenda'} — próximamente
-            </p>
-          </div>
+          {renderActiveView()}
         </div>
       </main>
     </div>
@@ -120,3 +137,4 @@ function App() {
 }
 
 export default App
+
