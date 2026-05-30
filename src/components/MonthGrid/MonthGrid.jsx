@@ -11,11 +11,21 @@ import { getCalendarGridDays, getWeekdayNames, isSameDay } from '../../utils/dat
  * - Días del mes anterior/siguiente se muestran con opacidad reducida.
  * - Día actual resaltado con indicador visual de acento.
  * - Día seleccionado con borde brillante interactivo.
+ * - Indicadores de color (dots) cuando un día tiene eventos.
  * - Memoización con useMemo para evitar recalcular la cuadrícula innecesariamente.
  * - Atributos ARIA para accesibilidad de lectores de pantalla.
  */
+
+/** Mapa de categoría a clase CSS para los dots de eventos */
+const CATEGORY_DOT_CLASS = {
+  work: 'dot-work',
+  personal: 'dot-personal',
+  meeting: 'dot-meeting',
+  holiday: 'dot-holiday',
+}
+
 function MonthGrid() {
-  const { viewDate, selectedDate, selectDate } = useCalendar()
+  const { viewDate, selectedDate, selectDate, events } = useCalendar()
 
   const weekdays = useMemo(() => getWeekdayNames('es-ES', 'short'), [])
 
@@ -23,6 +33,22 @@ function MonthGrid() {
     () => getCalendarGridDays(viewDate.year, viewDate.month),
     [viewDate.year, viewDate.month]
   )
+
+  /**
+   * Crea un mapa rápido de "año-mes-día" → categorías únicas de eventos.
+   * Evita iterar sobre todos los eventos por cada celda (O(n) total vs O(n×42)).
+   */
+  const eventDotsMap = useMemo(() => {
+    const map = {}
+    for (const evt of events) {
+      const key = `${evt.year}-${evt.month}-${evt.day}`
+      if (!map[key]) {
+        map[key] = new Set()
+      }
+      map[key].add(evt.category)
+    }
+    return map
+  }, [events])
 
   /**
    * Maneja el clic en un día de la cuadrícula.
@@ -51,6 +77,26 @@ function MonthGrid() {
     }
 
     return classes.join(' ')
+  }
+
+  /**
+   * Obtiene las categorías de eventos para un día dado (máximo 3 dots visibles).
+   */
+  const getEventDots = (dayObj) => {
+    const key = `${dayObj.year}-${dayObj.month}-${dayObj.day}`
+    const categories = eventDotsMap[key]
+    if (!categories) return null
+
+    // Limitar a 3 indicadores visuales para no saturar la celda
+    const dotArray = Array.from(categories).slice(0, 3)
+
+    return (
+      <div className="month-grid__event-dots" aria-hidden="true">
+        {dotArray.map((cat, i) => (
+          <span key={i} className={`month-grid__event-dot ${CATEGORY_DOT_CLASS[cat] || 'dot-work'}`}></span>
+        ))}
+      </div>
+    )
   }
 
   return (
@@ -85,6 +131,7 @@ function MonthGrid() {
             {dayObj.isToday && (
               <span className="month-grid__today-dot" aria-hidden="true"></span>
             )}
+            {getEventDots(dayObj)}
           </button>
         ))}
       </div>

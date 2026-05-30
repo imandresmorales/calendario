@@ -785,6 +785,22 @@ a {
   }
 }
 
+/* Event indicator dots inside day cells */
+.month-grid__event-dots {
+  position: absolute;
+  bottom: 3px;
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+}
+
+.month-grid__event-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+
 /* ==========================================================================
    YEAR VIEW COMPONENT
    ========================================================================== */
