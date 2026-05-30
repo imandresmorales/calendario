@@ -1,10 +1,14 @@
-import React, { createContext, useContext, useReducer, useCallback } from 'react'
+import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react'
+import { loadEvents, saveEvents, generateEventId } from '../utils/storage'
 
 /**
  * CalendarContext.jsx
  * Estado global de la aplicación de calendario.
  * Utiliza useReducer para manejo predecible del estado,
  * evitando mutaciones directas (patrón Flux/Redux simplificado).
+ *
+ * Incluye CRUD completo de eventos con persistencia en localStorage
+ * a través del módulo storage.js (validación de esquema y cuota).
  */
 
 const CalendarContext = createContext(null)
@@ -15,6 +19,10 @@ const ACTIONS = Object.freeze({
   NAVIGATE_MONTH: 'NAVIGATE_MONTH',
   SET_VIEW: 'SET_VIEW',
   GO_TO_TODAY: 'GO_TO_TODAY',
+  ADD_EVENT: 'ADD_EVENT',
+  UPDATE_EVENT: 'UPDATE_EVENT',
+  DELETE_EVENT: 'DELETE_EVENT',
+  LOAD_EVENTS: 'LOAD_EVENTS',
 })
 
 /**
@@ -33,6 +41,7 @@ function getInitialState() {
       month: now.getMonth(),
     },
     activeView: 'month', // 'month' | 'year' | 'day' | 'agenda'
+    events: [],
   }
 }
 
@@ -93,6 +102,32 @@ function calendarReducer(state, action) {
       }
     }
 
+    case ACTIONS.LOAD_EVENTS:
+      return {
+        ...state,
+        events: action.payload,
+      }
+
+    case ACTIONS.ADD_EVENT:
+      return {
+        ...state,
+        events: [...state.events, action.payload],
+      }
+
+    case ACTIONS.UPDATE_EVENT:
+      return {
+        ...state,
+        events: state.events.map((evt) =>
+          evt.id === action.payload.id ? { ...action.payload } : evt
+        ),
+      }
+
+    case ACTIONS.DELETE_EVENT:
+      return {
+        ...state,
+        events: state.events.filter((evt) => evt.id !== action.payload),
+      }
+
     default:
       return state
   }
@@ -101,9 +136,23 @@ function calendarReducer(state, action) {
 /**
  * Provider del contexto del calendario.
  * Envuelve la aplicación para proveer estado global a todos los componentes hijos.
+ * Carga eventos de localStorage al montar y los persiste al cambiar.
  */
 export function CalendarProvider({ children }) {
   const [state, dispatch] = useReducer(calendarReducer, null, getInitialState)
+
+  // Cargar eventos de localStorage al montar la app
+  useEffect(() => {
+    const stored = loadEvents()
+    if (stored.length > 0) {
+      dispatch({ type: ACTIONS.LOAD_EVENTS, payload: stored })
+    }
+  }, [])
+
+  // Persistir eventos en localStorage cada vez que cambien
+  useEffect(() => {
+    saveEvents(state.events)
+  }, [state.events])
 
   return (
     <CalendarContext.Provider value={{ state, dispatch, ACTIONS }}>
@@ -155,15 +204,60 @@ export function useCalendar() {
     [dispatch, ACTIONS]
   )
 
+  // --- CRUD de Eventos ---
+
+  const addEvent = useCallback(
+    (eventData) => {
+      const newEvent = {
+        ...eventData,
+        id: eventData.id || generateEventId(),
+      }
+      dispatch({ type: ACTIONS.ADD_EVENT, payload: newEvent })
+    },
+    [dispatch, ACTIONS]
+  )
+
+  const updateEvent = useCallback(
+    (eventData) => {
+      dispatch({ type: ACTIONS.UPDATE_EVENT, payload: eventData })
+    },
+    [dispatch, ACTIONS]
+  )
+
+  const deleteEvent = useCallback(
+    (eventId) => {
+      dispatch({ type: ACTIONS.DELETE_EVENT, payload: eventId })
+    },
+    [dispatch, ACTIONS]
+  )
+
+  /**
+   * Obtiene los eventos de un día específico.
+   * Función pura sin efectos secundarios.
+   */
+  const getEventsForDay = useCallback(
+    (year, month, day) => {
+      return state.events.filter(
+        (evt) => evt.year === year && evt.month === month && evt.day === day
+      )
+    },
+    [state.events]
+  )
+
   return {
     selectedDate: state.selectedDate,
     viewDate: state.viewDate,
     activeView: state.activeView,
+    events: state.events,
     selectDate,
     goToPreviousMonth,
     goToNextMonth,
     goToToday,
     setActiveView,
+    addEvent,
+    updateEvent,
+    deleteEvent,
+    getEventsForDay,
   }
 }
 
