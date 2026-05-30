@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import { useCalendar } from './context/CalendarContext'
 import { getMonthNames, getWeekdayName } from './utils/dateUtils'
 import MonthGrid from './components/MonthGrid/MonthGrid'
 import YearView from './components/YearView/YearView'
 import DayView from './components/DayView/DayView'
 import AgendaView from './components/AgendaView/AgendaView'
+import EventModal from './components/EventModal/EventModal'
 import { useKeyboardNavigation } from './hooks/useKeyboardNavigation'
 
 function App() {
@@ -12,15 +13,71 @@ function App() {
     selectedDate,
     viewDate,
     activeView,
+    events,
     goToPreviousMonth,
     goToNextMonth,
     goToToday,
     setActiveView,
+    addEvent,
+    updateEvent,
+    deleteEvent,
+    getEventsForDay,
   } = useCalendar()
+
+  // Estado del modal de eventos
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingEvent, setEditingEvent] = useState(null)
 
   const monthNames = getMonthNames()
   useKeyboardNavigation() // Activar navegación por teclado (flechas, Home, End, Escape)
   const weekdayName = getWeekdayName(selectedDate.year, selectedDate.month, selectedDate.day)
+
+  // Eventos del día seleccionado para el sidebar
+  const todaysEvents = getEventsForDay(selectedDate.year, selectedDate.month, selectedDate.day)
+
+  /**
+   * Abre el modal para crear un nuevo evento.
+   */
+  const handleNewEvent = useCallback(() => {
+    setEditingEvent(null)
+    setIsModalOpen(true)
+  }, [])
+
+  /**
+   * Abre el modal para editar un evento existente.
+   */
+  const handleEditEvent = useCallback((event) => {
+    setEditingEvent(event)
+    setIsModalOpen(true)
+  }, [])
+
+  /**
+   * Guarda un evento (nuevo o editado) a través del CRUD del contexto.
+   */
+  const handleSaveEvent = useCallback((eventData) => {
+    if (eventData.id && editingEvent) {
+      updateEvent(eventData)
+    } else {
+      addEvent(eventData)
+    }
+  }, [editingEvent, addEvent, updateEvent])
+
+  /**
+   * Elimina un evento con confirmación del usuario.
+   */
+  const handleDeleteEvent = useCallback((eventId) => {
+    deleteEvent(eventId)
+  }, [deleteEvent])
+
+  /**
+   * Mapa de colores de categoría para los indicadores del sidebar.
+   */
+  const categoryColors = {
+    work: 'dot-work',
+    personal: 'dot-personal',
+    meeting: 'dot-meeting',
+    holiday: 'dot-holiday',
+  }
 
   /**
    * Renderiza la vista activa del calendario.
@@ -61,17 +118,46 @@ function App() {
           </p>
         </div>
 
+        {/* Botón para agregar evento */}
+        <button className="add-event-btn" onClick={handleNewEvent}>
+          <span aria-hidden="true">+</span> Nuevo Evento
+        </button>
+
         <div className="divider" role="separator"></div>
 
-        {/* Placeholder for Events List */}
+        {/* Lista de eventos del día */}
         <div className="upcoming-events-section">
           <h3>Eventos del Día</h3>
-          <div className="events-list-placeholder">
-            <p className="no-events-text">No hay eventos para este día.</p>
-          </div>
+          {todaysEvents.length > 0 ? (
+            <div className="events-list">
+              {todaysEvents.map((evt) => (
+                <div key={evt.id} className="event-card" onClick={() => handleEditEvent(evt)}>
+                  <div className="event-card__header">
+                    <span className={`dot ${categoryColors[evt.category] || 'dot-work'}`} aria-hidden="true"></span>
+                    <span className="event-card__time">{evt.startTime} - {evt.endTime}</span>
+                  </div>
+                  <p className="event-card__title">{evt.title}</p>
+                  {evt.description && (
+                    <p className="event-card__desc">{evt.description}</p>
+                  )}
+                  <button
+                    className="event-card__delete"
+                    onClick={(e) => { e.stopPropagation(); handleDeleteEvent(evt.id); }}
+                    aria-label={`Eliminar evento: ${evt.title}`}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="events-list-placeholder">
+              <p className="no-events-text">No hay eventos para este día.</p>
+            </div>
+          )}
         </div>
 
-        {/* Placeholder for Filters */}
+        {/* Filtros por categoría */}
         <div className="filters-section">
           <h3>Categorías</h3>
           <div className="category-list">
@@ -136,9 +222,17 @@ function App() {
           {renderActiveView()}
         </div>
       </main>
+
+      {/* Modal de eventos */}
+      <EventModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveEvent}
+        initialData={editingEvent}
+        selectedDate={selectedDate}
+      />
     </div>
   )
 }
 
 export default App
-
