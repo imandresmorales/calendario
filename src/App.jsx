@@ -7,6 +7,7 @@ import DayView from './components/DayView/DayView'
 import AgendaView from './components/AgendaView/AgendaView'
 import EventModal from './components/EventModal/EventModal'
 import { useKeyboardNavigation } from './hooks/useKeyboardNavigation'
+import { useTheme } from './hooks/useTheme'
 
 function App() {
   const {
@@ -29,6 +30,7 @@ function App() {
   const [editingEvent, setEditingEvent] = useState(null)
 
   const monthNames = getMonthNames()
+  const { theme, toggleTheme } = useTheme()
   useKeyboardNavigation() // Activar navegación por teclado (flechas, Home, End, Escape)
   const weekdayName = getWeekdayName(selectedDate.year, selectedDate.month, selectedDate.day)
 
@@ -107,7 +109,17 @@ function App() {
             <span className="logo-dot" aria-hidden="true"></span>
             <h2>AstroCal</h2>
           </div>
-          <span className="badge">v1.0.0</span>
+          <div className="sidebar-header__actions">
+            <button
+              className="theme-toggle-btn"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+              title={theme === 'dark' ? 'Tema claro' : 'Tema oscuro'}
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+            <span className="badge">v1.0.0</span>
+          </div>
         </div>
 
         <div className="selected-date-preview">
