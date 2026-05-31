@@ -1017,6 +1017,60 @@ a {
   }
 }
 
+/* DayView event count */
+.day-view__event-count {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.day-view__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* DayView event blocks */
+.day-view__event-block {
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+  cursor: default;
+}
+
+.day-view__event-block:hover {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+}
+
+.day-view__event-time {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.day-view__event-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.day-view__event-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+
 /* ==========================================================================
    AGENDA VIEW COMPONENT
    ========================================================================== */
