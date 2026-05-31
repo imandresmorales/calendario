@@ -8,6 +8,7 @@ import AgendaView from './components/AgendaView/AgendaView'
 import EventModal from './components/EventModal/EventModal'
 import { useKeyboardNavigation } from './hooks/useKeyboardNavigation'
 import { useTheme } from './hooks/useTheme'
+import { useToast } from './context/ToastContext'
 
 function App() {
   const {
@@ -31,6 +32,7 @@ function App() {
 
   const monthNames = getMonthNames()
   const { theme, toggleTheme } = useTheme()
+  const { addToast } = useToast()
   useKeyboardNavigation() // Activar navegación por teclado (flechas, Home, End, Escape)
   const weekdayName = getWeekdayName(selectedDate.year, selectedDate.month, selectedDate.day)
 
@@ -54,22 +56,25 @@ function App() {
   }, [])
 
   /**
-   * Guarda un evento (nuevo o editado) a través del CRUD del contexto.
+   * Guarda un evento (nuevo o editado) a tráves del CRUD del contexto.
    */
   const handleSaveEvent = useCallback((eventData) => {
     if (eventData.id && editingEvent) {
       updateEvent(eventData)
+      addToast('Evento actualizado correctamente', 'success')
     } else {
       addEvent(eventData)
+      addToast('Evento creado exitosamente', 'success')
     }
-  }, [editingEvent, addEvent, updateEvent])
+  }, [editingEvent, addEvent, updateEvent, addToast])
 
   /**
-   * Elimina un evento con confirmación del usuario.
+   * Elimina un evento con feedback visual.
    */
   const handleDeleteEvent = useCallback((eventId) => {
     deleteEvent(eventId)
-  }, [deleteEvent])
+    addToast('Evento eliminado', 'info')
+  }, [deleteEvent, addToast])
 
   /**
    * Mapa de colores de categoría para los indicadores del sidebar.

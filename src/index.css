@@ -1439,3 +1439,105 @@ a {
 .event-modal__btn-cancel:active {
   transform: scale(0.97);
 }
+
+/* ==========================================================================
+   TOAST NOTIFICATION SYSTEM
+   ========================================================================== */
+
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 380px;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--border-radius-sm);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  animation: toastSlideIn var(--transition-normal) ease-out;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.toast__icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.toast--success .toast__icon {
+  background: hsl(145, 65%, 42%);
+}
+
+.toast--error .toast__icon {
+  background: hsl(0, 70%, 55%);
+}
+
+.toast--info .toast__icon {
+  background: hsl(210, 85%, 55%);
+}
+
+.toast--warning .toast__icon {
+  background: hsl(35, 90%, 52%);
+}
+
+.toast--success { border-left: 3px solid hsl(145, 65%, 42%); }
+.toast--error { border-left: 3px solid hsl(0, 70%, 55%); }
+.toast--info { border-left: 3px solid hsl(210, 85%, 55%); }
+.toast--warning { border-left: 3px solid hsl(35, 90%, 52%); }
+
+.toast__message {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.toast__close {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  border-radius: 50%;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.toast__close:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+@media (max-width: 480px) {
+  .toast-container {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    max-width: none;
+  }
+}
