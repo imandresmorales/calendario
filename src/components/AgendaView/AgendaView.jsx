@@ -4,18 +4,31 @@ import { getMonthNames, getWeekdayName, getDaysInMonth } from '../../utils/dateU
 
 /**
  * AgendaView.jsx
- * Vista de agenda que muestra los próximos 30 días con sus franjas
+ * Vista de agenda que muestra los próximos 30 días con sus eventos
  * en formato cronológico tipo feed/lista.
  *
  * Características:
  * - Muestra los próximos 30 días a partir de la fecha seleccionada.
  * - Agrupa visualmente por mes con separadores.
- * - Diferencia el día actual con acento visual.
- * - Preparado para listar eventos dentro de cada día.
- * - Clic en un día lo selecciona y permite navegar a la vista de Día.
+ * - Muestra los eventos reales de cada día con indicador de categoría.
+ * - Diferencia el día actual con acento visual y badge "Hoy".
+ * - Clic en un día lo selecciona y navega a la vista de Día.
+ *
+ * Seguridad:
+ * - Solo renderiza datos previamente sanitizados por sanitize.js.
+ * - No usa dangerouslySetInnerHTML.
  */
+
+/** Mapa de categoría a clase CSS del dot de color */
+const CATEGORY_DOT = {
+  work: 'dot-work',
+  personal: 'dot-personal',
+  meeting: 'dot-meeting',
+  holiday: 'dot-holiday',
+}
+
 function AgendaView() {
-  const { selectedDate, selectDate, setActiveView } = useCalendar()
+  const { selectedDate, selectDate, setActiveView, getEventsForDay } = useCalendar()
 
   const monthNames = useMemo(() => getMonthNames(), [])
 
@@ -99,27 +112,44 @@ function AgendaView() {
         <div key={group.key} className="agenda-view__group">
           <h3 className="agenda-view__month-header">{group.label}</h3>
 
-          {group.days.map((dayObj, index) => (
-            <button
-              key={index}
-              className={`agenda-view__day-row ${dayObj.isToday ? 'agenda-view__day-row--today' : ''}`}
-              onClick={() => handleDayClick(dayObj)}
-              aria-label={`${dayObj.weekday} ${dayObj.day} de ${dayObj.monthLabel}`}
-            >
-              <div className="agenda-view__date-block">
-                <span className="agenda-view__day-number">{dayObj.day}</span>
-                <span className="agenda-view__weekday">{dayObj.weekday}</span>
-              </div>
+          {group.days.map((dayObj, index) => {
+            const dayEvents = getEventsForDay(dayObj.year, dayObj.month, dayObj.day)
+              .sort((a, b) => a.startTime.localeCompare(b.startTime))
 
-              <div className="agenda-view__events-area">
-                <span className="agenda-view__no-events">Sin eventos programados</span>
-              </div>
+            return (
+              <button
+                key={index}
+                className={`agenda-view__day-row ${dayObj.isToday ? 'agenda-view__day-row--today' : ''} ${dayEvents.length > 0 ? 'agenda-view__day-row--has-events' : ''}`}
+                onClick={() => handleDayClick(dayObj)}
+                aria-label={`${dayObj.weekday} ${dayObj.day} de ${dayObj.monthLabel}${dayEvents.length > 0 ? `, ${dayEvents.length} eventos` : ''}`}
+              >
+                <div className="agenda-view__date-block">
+                  <span className="agenda-view__day-number">{dayObj.day}</span>
+                  <span className="agenda-view__weekday">{dayObj.weekday}</span>
+                </div>
 
-              {dayObj.isToday && (
-                <span className="agenda-view__today-badge">Hoy</span>
-              )}
-            </button>
-          ))}
+                <div className="agenda-view__events-area">
+                  {dayEvents.length > 0 ? (
+                    <div className="agenda-view__event-list">
+                      {dayEvents.map((evt) => (
+                        <div key={evt.id} className="agenda-view__event-item">
+                          <span className={`dot ${CATEGORY_DOT[evt.category] || 'dot-work'}`} aria-hidden="true"></span>
+                          <span className="agenda-view__event-time">{evt.startTime}</span>
+                          <span className="agenda-view__event-title">{evt.title}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="agenda-view__no-events">Sin eventos</span>
+                  )}
+                </div>
+
+                {dayObj.isToday && (
+                  <span className="agenda-view__today-badge">Hoy</span>
+                )}
+              </button>
+            )
+          })}
         </div>
       ))}
     </div>
