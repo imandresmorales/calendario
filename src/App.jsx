@@ -9,6 +9,7 @@ import EventModal from './components/EventModal/EventModal'
 import { useKeyboardNavigation } from './hooks/useKeyboardNavigation'
 import { useTheme } from './hooks/useTheme'
 import { useToast } from './context/ToastContext'
+import { eventsToICSString, parseICS, parseJSON } from './utils/importExportUtils'
 
 function App() {
   const {
@@ -28,6 +29,7 @@ function App() {
     setSearchQuery,
     selectedCategories,
     toggleCategory,
+    importEvents,
   } = useCalendar()
 
   // Estado del modal de eventos
@@ -79,6 +81,92 @@ function App() {
     deleteEvent(eventId)
     addToast('Evento eliminado', 'info')
   }, [deleteEvent, addToast])
+
+  /**
+   * Exporta todos los eventos en formato JSON.
+   */
+  const handleExportJSON = useCallback(() => {
+    if (events.length === 0) {
+      addToast('No hay eventos para exportar', 'warning')
+      return
+    }
+    try {
+      const dataStr = JSON.stringify(events, null, 2)
+      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr)
+      const exportFileDefaultName = `astrocal_events_${new Date().toISOString().slice(0, 10)}.json`
+
+      const linkElement = document.createElement('a')
+      linkElement.setAttribute('href', dataUri)
+      linkElement.setAttribute('download', exportFileDefaultName)
+      linkElement.click()
+      addToast('Eventos exportados en JSON', 'success')
+    } catch (e) {
+      addToast('Error al exportar eventos', 'error')
+    }
+  }, [events, addToast])
+
+  /**
+   * Exporta todos los eventos en formato iCalendar (.ics).
+   */
+  const handleExportICS = useCallback(() => {
+    if (events.length === 0) {
+      addToast('No hay eventos para exportar', 'warning')
+      return
+    }
+    try {
+      const icsString = eventsToICSString(events)
+      const blob = new Blob([icsString], { type: 'text/calendar;charset=utf-8' })
+      const dataUri = URL.createObjectURL(blob)
+      const exportFileDefaultName = `astrocal_calendar_${new Date().toISOString().slice(0, 10)}.ics`
+
+      const linkElement = document.createElement('a')
+      linkElement.setAttribute('href', dataUri)
+      linkElement.setAttribute('download', exportFileDefaultName)
+      linkElement.click()
+      
+      setTimeout(() => URL.revokeObjectURL(dataUri), 100)
+      addToast('Calendario exportado en ICS', 'success')
+    } catch (e) {
+      addToast('Error al exportar iCalendar', 'error')
+    }
+  }, [events, addToast])
+
+  /**
+   * Importa eventos desde un archivo JSON o ICS con validación y sanitización estricta.
+   */
+  const handleImportFile = useCallback((e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const content = event.target.result
+      let imported = []
+
+      if (file.name.endsWith('.json')) {
+        imported = parseJSON(content)
+      } else if (file.name.endsWith('.ics')) {
+        imported = parseICS(content)
+      } else {
+        addToast('Formato de archivo no soportado. Use .json o .ics', 'error')
+        return
+      }
+
+      if (imported.length === 0) {
+        addToast('No se encontraron eventos válidos para importar', 'warning')
+      } else {
+        importEvents(imported)
+        addToast(`Se importaron ${imported.length} eventos exitosamente`, 'success')
+      }
+    }
+    
+    reader.onerror = () => {
+      addToast('Error al leer el archivo', 'error')
+    }
+
+    reader.readAsText(file)
+    e.target.value = ''
+  }, [importEvents, addToast])
 
   /**
    * Mapa de colores de categoría para los indicadores del sidebar.
@@ -216,6 +304,30 @@ function App() {
                 </label>
               )
             })}
+          </div>
+        </div>
+
+        <div className="divider" role="separator"></div>
+
+        {/* Herramientas de Datos (Importar/Exportar) */}
+        <div className="data-section">
+          <h3>Datos</h3>
+          <div className="data-buttons">
+            <button className="data-btn" onClick={handleExportJSON} title="Exportar eventos como JSON">
+              📥 JSON
+            </button>
+            <button className="data-btn" onClick={handleExportICS} title="Exportar eventos como ICS (Outlook/Google)">
+              📅 ICS
+            </button>
+            <label className="data-btn data-btn--upload" title="Importar desde JSON o ICS">
+              📤 Importar
+              <input
+                type="file"
+                accept=".json,.ics"
+                onChange={handleImportFile}
+                style={{ display: 'none' }}
+              />
+            </label>
           </div>
         </div>
       </aside>
