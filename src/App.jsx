@@ -10,6 +10,7 @@ import { useKeyboardNavigation } from './hooks/useKeyboardNavigation'
 import { useTheme } from './hooks/useTheme'
 import { useToast } from './context/ToastContext'
 import { eventsToICSString, parseICS, parseJSON } from './utils/importExportUtils'
+import ConfirmationModal from './components/ConfirmationModal/ConfirmationModal'
 
 function App() {
   const {
@@ -30,11 +31,35 @@ function App() {
     selectedCategories,
     toggleCategory,
     importEvents,
+    clearAllEvents,
   } = useCalendar()
 
   // Estado del modal de eventos
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState(null)
+
+  // Estado del modal de confirmación personalizado
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'danger',
+    onConfirm: () => {},
+  })
+
+  const triggerConfirm = useCallback((title, message, onConfirm, type = 'danger') => {
+    setConfirmModal({
+      isOpen: true,
+      title,
+      message,
+      type,
+      onConfirm,
+    })
+  }, [])
+
+  const closeConfirm = useCallback(() => {
+    setConfirmModal((prev) => ({ ...prev, isOpen: false }))
+  }, [])
 
   const monthNames = getMonthNames()
   const { theme, toggleTheme } = useTheme()
@@ -75,12 +100,41 @@ function App() {
   }, [editingEvent, addEvent, updateEvent, addToast])
 
   /**
-   * Elimina un evento con feedback visual.
+   * Abre modal de confirmación antes de eliminar el evento.
    */
   const handleDeleteEvent = useCallback((eventId) => {
-    deleteEvent(eventId)
-    addToast('Evento eliminado', 'info')
-  }, [deleteEvent, addToast])
+    const event = events.find((evt) => evt.id === eventId)
+    if (!event) return
+
+    triggerConfirm(
+      '¿Eliminar Evento?',
+      `¿Estás seguro de que deseas eliminar el evento "${event.title}"? Esta acción no se puede deshacer.`,
+      () => {
+        deleteEvent(eventId)
+        addToast('Evento eliminado', 'info')
+      },
+      'danger'
+    )
+  }, [events, deleteEvent, triggerConfirm, addToast])
+
+  /**
+   * Abre modal de confirmación antes de borrar todos los eventos.
+   */
+  const handleClearAllEvents = useCallback(() => {
+    if (events.length === 0) {
+      addToast('No hay eventos para borrar', 'warning')
+      return
+    }
+    triggerConfirm(
+      '¿Borrar TODOS los Eventos?',
+      '¿Estás seguro de que deseas eliminar TODOS los eventos agendados? Perderás de forma permanente todos los datos guardados.',
+      () => {
+        clearAllEvents()
+        addToast('Todos los eventos han sido eliminados', 'info')
+      },
+      'danger'
+    )
+  }, [events, clearAllEvents, triggerConfirm, addToast])
 
   /**
    * Exporta todos los eventos en formato JSON.
@@ -309,7 +363,7 @@ function App() {
 
         <div className="divider" role="separator"></div>
 
-        {/* Herramientas de Datos (Importar/Exportar) */}
+        {/* Herramientas de Datos (Importar/Exportar/Borrar) */}
         <div className="data-section">
           <h3>Datos</h3>
           <div className="data-buttons">
@@ -329,6 +383,9 @@ function App() {
               />
             </label>
           </div>
+          <button className="clear-all-btn" onClick={handleClearAllEvents} title="Borrar permanentemente todos los eventos">
+            🗑️ Borrar todos los eventos
+          </button>
         </div>
       </aside>
 
@@ -381,6 +438,16 @@ function App() {
         onSave={handleSaveEvent}
         initialData={editingEvent}
         selectedDate={selectedDate}
+      />
+
+      {/* Modal de confirmación personalizado */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={closeConfirm}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
       />
     </div>
   )

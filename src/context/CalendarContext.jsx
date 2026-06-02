@@ -26,6 +26,7 @@ const ACTIONS = Object.freeze({
   SET_SEARCH_QUERY: 'SET_SEARCH_QUERY',
   TOGGLE_CATEGORY: 'TOGGLE_CATEGORY',
   IMPORT_EVENTS: 'IMPORT_EVENTS',
+  CLEAR_ALL_EVENTS: 'CLEAR_ALL_EVENTS',
 })
 
 /**
@@ -137,6 +138,12 @@ function calendarReducer(state, action) {
       return {
         ...state,
         events: [...state.events, ...action.payload],
+      }
+
+    case ACTIONS.CLEAR_ALL_EVENTS:
+      return {
+        ...state,
+        events: [],
       }
 
     case ACTIONS.SET_SEARCH_QUERY:
@@ -297,6 +304,10 @@ export function useCalendar() {
     [dispatch, ACTIONS]
   )
 
+  const clearAllEvents = useCallback(() => {
+    dispatch({ type: ACTIONS.CLEAR_ALL_EVENTS })
+  }, [dispatch, ACTIONS])
+
   /**
    * Obtiene los eventos de un día específico, aplicando los filtros activos de búsqueda/categoría.
    * Función pura sin efectos secundarios.
@@ -329,6 +340,7 @@ export function useCalendar() {
     updateEvent,
     deleteEvent,
     importEvents,
+    clearAllEvents,
     getEventsForDay,
   }
 }
