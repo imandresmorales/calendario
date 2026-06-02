@@ -24,6 +24,10 @@ function App() {
     updateEvent,
     deleteEvent,
     getEventsForDay,
+    searchQuery,
+    setSearchQuery,
+    selectedCategories,
+    toggleCategory,
   } = useCalendar()
 
   // Estado del modal de eventos
@@ -140,6 +144,19 @@ function App() {
           <span aria-hidden="true">+</span> Nuevo Evento
         </button>
 
+        {/* Buscador de Eventos */}
+        <div className="search-section">
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar eventos..."
+            className="search-input"
+            aria-label="Buscar eventos por título o descripción"
+            maxLength={100}
+          />
+        </div>
+
         <div className="divider" role="separator"></div>
 
         {/* Lista de eventos del día */}
@@ -178,22 +195,27 @@ function App() {
         <div className="filters-section">
           <h3>Categorías</h3>
           <div className="category-list">
-            <label className="category-item">
-              <span className="dot dot-work" aria-hidden="true"></span>
-              Trabajo
-            </label>
-            <label className="category-item">
-              <span className="dot dot-personal" aria-hidden="true"></span>
-              Personal
-            </label>
-            <label className="category-item">
-              <span className="dot dot-meeting" aria-hidden="true"></span>
-              Reuniones
-            </label>
-            <label className="category-item">
-              <span className="dot dot-holiday" aria-hidden="true"></span>
-              Festivos
-            </label>
+            {[
+              { id: 'work', label: 'Trabajo', dotClass: 'dot-work' },
+              { id: 'personal', label: 'Personal', dotClass: 'dot-personal' },
+              { id: 'meeting', label: 'Reuniones', dotClass: 'dot-meeting' },
+              { id: 'holiday', label: 'Festivos', dotClass: 'dot-holiday' },
+            ].map((cat) => {
+              const isChecked = selectedCategories.includes(cat.id)
+              return (
+                <label key={cat.id} className={`category-item ${isChecked ? 'active' : 'inactive'}`}>
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => toggleCategory(cat.id)}
+                    className="category-checkbox"
+                    aria-label={`Filtrar por ${cat.label}`}
+                  />
+                  <span className={`dot ${cat.dotClass}`} aria-hidden="true"></span>
+                  {cat.label}
+                </label>
+              )
+            })}
           </div>
         </div>
       </aside>

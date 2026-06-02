@@ -23,6 +23,8 @@ const ACTIONS = Object.freeze({
   UPDATE_EVENT: 'UPDATE_EVENT',
   DELETE_EVENT: 'DELETE_EVENT',
   LOAD_EVENTS: 'LOAD_EVENTS',
+  SET_SEARCH_QUERY: 'SET_SEARCH_QUERY',
+  TOGGLE_CATEGORY: 'TOGGLE_CATEGORY',
 })
 
 /**
@@ -42,6 +44,8 @@ function getInitialState() {
     },
     activeView: 'month', // 'month' | 'year' | 'day' | 'agenda'
     events: [],
+    searchQuery: '',
+    selectedCategories: ['work', 'personal', 'meeting', 'holiday'],
   }
 }
 
@@ -128,6 +132,24 @@ function calendarReducer(state, action) {
         events: state.events.filter((evt) => evt.id !== action.payload),
       }
 
+    case ACTIONS.SET_SEARCH_QUERY:
+      return {
+        ...state,
+        searchQuery: action.payload,
+      }
+
+    case ACTIONS.TOGGLE_CATEGORY: {
+      const category = action.payload
+      const isSelected = state.selectedCategories.includes(category)
+      const selectedCategories = isSelected
+        ? state.selectedCategories.filter((c) => c !== category)
+        : [...state.selectedCategories, category]
+      return {
+        ...state,
+        selectedCategories,
+      }
+    }
+
     default:
       return state
   }
@@ -204,6 +226,36 @@ export function useCalendar() {
     [dispatch, ACTIONS]
   )
 
+  const setSearchQuery = useCallback(
+    (query) => {
+      dispatch({ type: ACTIONS.SET_SEARCH_QUERY, payload: query })
+    },
+    [dispatch, ACTIONS]
+  )
+
+  const toggleCategory = useCallback(
+    (category) => {
+      dispatch({ type: ACTIONS.TOGGLE_CATEGORY, payload: category })
+    },
+    [dispatch, ACTIONS]
+  )
+
+  // --- Filtrado Seguro de Eventos ---
+  const filteredEvents = useMemo(() => {
+    const query = state.searchQuery.toLowerCase().trim()
+    return state.events.filter((evt) => {
+      // Filtrar por categoría
+      const matchesCategory = state.selectedCategories.includes(evt.category)
+      if (!matchesCategory) return false
+
+      // Filtrar por texto de búsqueda
+      if (!query) return true
+      const titleMatch = evt.title?.toLowerCase().includes(query)
+      const descMatch = evt.description?.toLowerCase().includes(query)
+      return titleMatch || descMatch
+    })
+  }, [state.events, state.searchQuery, state.selectedCategories])
+
   // --- CRUD de Eventos ---
 
   const addEvent = useCallback(
@@ -232,28 +284,33 @@ export function useCalendar() {
   )
 
   /**
-   * Obtiene los eventos de un día específico.
+   * Obtiene los eventos de un día específico, aplicando los filtros activos de búsqueda/categoría.
    * Función pura sin efectos secundarios.
    */
   const getEventsForDay = useCallback(
     (year, month, day) => {
-      return state.events.filter(
+      return filteredEvents.filter(
         (evt) => evt.year === year && evt.month === month && evt.day === day
       )
     },
-    [state.events]
+    [filteredEvents]
   )
 
   return {
     selectedDate: state.selectedDate,
     viewDate: state.viewDate,
     activeView: state.activeView,
-    events: state.events,
+    events: state.events, // Para persistencia u otros usos que requieran el total sin filtros
+    filteredEvents, // Eventos filtrados según búsqueda y categorías
+    searchQuery: state.searchQuery,
+    selectedCategories: state.selectedCategories,
     selectDate,
     goToPreviousMonth,
     goToNextMonth,
     goToToday,
     setActiveView,
+    setSearchQuery,
+    toggleCategory,
     addEvent,
     updateEvent,
     deleteEvent,

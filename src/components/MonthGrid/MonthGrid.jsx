@@ -25,7 +25,7 @@ const CATEGORY_DOT_CLASS = {
 }
 
 function MonthGrid() {
-  const { viewDate, selectedDate, selectDate, events } = useCalendar()
+  const { viewDate, selectedDate, selectDate, filteredEvents } = useCalendar()
 
   const weekdays = useMemo(() => getWeekdayNames('es-ES', 'short'), [])
 
@@ -40,7 +40,7 @@ function MonthGrid() {
    */
   const eventDotsMap = useMemo(() => {
     const map = {}
-    for (const evt of events) {
+    for (const evt of filteredEvents) {
       const key = `${evt.year}-${evt.month}-${evt.day}`
       if (!map[key]) {
         map[key] = new Set()
@@ -48,7 +48,7 @@ function MonthGrid() {
       map[key].add(evt.category)
     }
     return map
-  }, [events])
+  }, [filteredEvents])
 
   /**
    * Maneja el clic en un día de la cuadrícula.
