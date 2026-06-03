@@ -27,6 +27,7 @@ const ACTIONS = Object.freeze({
   TOGGLE_CATEGORY: 'TOGGLE_CATEGORY',
   IMPORT_EVENTS: 'IMPORT_EVENTS',
   CLEAR_ALL_EVENTS: 'CLEAR_ALL_EVENTS',
+  JUMP_TO_PERIOD: 'JUMP_TO_PERIOD',
 })
 
 /**
@@ -144,6 +145,15 @@ function calendarReducer(state, action) {
       return {
         ...state,
         events: [],
+      }
+
+    case ACTIONS.JUMP_TO_PERIOD:
+      return {
+        ...state,
+        viewDate: {
+          year: action.payload.year,
+          month: action.payload.month,
+        },
       }
 
     case ACTIONS.SET_SEARCH_QUERY:
@@ -308,6 +318,13 @@ export function useCalendar() {
     dispatch({ type: ACTIONS.CLEAR_ALL_EVENTS })
   }, [dispatch, ACTIONS])
 
+  const jumpToPeriod = useCallback(
+    (year, month) => {
+      dispatch({ type: ACTIONS.JUMP_TO_PERIOD, payload: { year, month } })
+    },
+    [dispatch, ACTIONS]
+  )
+
   /**
    * Obtiene los eventos de un día específico, aplicando los filtros activos de búsqueda/categoría.
    * Función pura sin efectos secundarios.
@@ -341,6 +358,7 @@ export function useCalendar() {
     deleteEvent,
     importEvents,
     clearAllEvents,
+    jumpToPeriod,
     getEventsForDay,
   }
 }

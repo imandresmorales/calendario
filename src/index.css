@@ -632,11 +632,54 @@ a {
   gap: 12px;
 }
 
-.navigation-controls h2 {
-  font-size: 22px;
+/* Period Selectors in Header */
+.current-period-selectors {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.period-select {
+  font-size: 16px;
   font-weight: 700;
-  min-width: 140px;
-  text-align: center;
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 6px 12px;
+  cursor: pointer;
+  outline: none;
+  transition: all var(--transition-fast);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='hsl(240, 10%25, 45%25)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px;
+  padding-right: 26px;
+}
+
+[data-theme="dark"] .period-select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='hsl(240, 10%25, 94%25)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.period-select:hover {
+  background-color: var(--border-color);
+  border-color: var(--text-muted);
+}
+
+.period-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.period-select option {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 8px;
+  font-weight: 500;
+  font-size: 14px;
 }
 
 .nav-btn, .today-btn {

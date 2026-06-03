@@ -32,6 +32,7 @@ function App() {
     toggleCategory,
     importEvents,
     clearAllEvents,
+    jumpToPeriod,
   } = useCalendar()
 
   // Estado del modal de eventos
@@ -66,6 +67,19 @@ function App() {
   const { addToast } = useToast()
   useKeyboardNavigation() // Activar navegación por teclado (flechas, Home, End, Escape)
   const weekdayName = getWeekdayName(selectedDate.year, selectedDate.month, selectedDate.day)
+
+  const yearsRange = React.useMemo(() => {
+    const startYear = new Date().getFullYear() - 10
+    return Array.from({ length: 21 }, (_, i) => startYear + i)
+  }, [])
+
+  const handleMonthChange = useCallback((e) => {
+    jumpToPeriod(viewDate.year, parseInt(e.target.value, 10))
+  }, [viewDate.year, jumpToPeriod])
+
+  const handleYearChange = useCallback((e) => {
+    jumpToPeriod(parseInt(e.target.value, 10), viewDate.month)
+  }, [viewDate.month, jumpToPeriod])
 
   // Eventos del día seleccionado para el sidebar
   const todaysEvents = getEventsForDay(selectedDate.year, selectedDate.month, selectedDate.day)
@@ -397,9 +411,32 @@ function App() {
             <button className="nav-btn" aria-label="Mes anterior" onClick={goToPreviousMonth}>
               ◀
             </button>
-            <h2 className="current-period">
-              {monthNames[viewDate.month]} {viewDate.year}
-            </h2>
+            <div className="current-period-selectors">
+              <select
+                value={viewDate.month}
+                onChange={handleMonthChange}
+                className="period-select"
+                aria-label="Seleccionar mes"
+              >
+                {monthNames.map((name, index) => (
+                  <option key={index} value={index}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={viewDate.year}
+                onChange={handleYearChange}
+                className="period-select"
+                aria-label="Seleccionar año"
+              >
+                {yearsRange.map((yr) => (
+                  <option key={yr} value={yr}>
+                    {yr}
+                  </option>
+                ))}
+              </select>
+            </div>
             <button className="nav-btn" aria-label="Mes siguiente" onClick={goToNextMonth}>
               ▶
             </button>
