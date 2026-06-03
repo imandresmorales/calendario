@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { validateEventTitle, validateEventDescription, validateTimeRange } from '../../utils/sanitize'
+import { useCalendar } from '../../context/CalendarContext'
+import { checkEventConflict } from '../../utils/conflictUtils'
 
 /**
  * EventModal.jsx
@@ -25,15 +27,38 @@ const CATEGORIES = [
 ]
 
 function EventModal({ isOpen, onClose, onSave, initialData, selectedDate }) {
+  const { events } = useCalendar()
+
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('10:00')
   const [category, setCategory] = useState('work')
   const [errors, setErrors] = useState({})
+  const [conflictEvent, setConflictEvent] = useState(null)
 
   const modalRef = useRef(null)
   const titleInputRef = useRef(null)
+
+  // Detección de solapamiento en tiempo real
+  useEffect(() => {
+    if (isOpen && startTime && endTime) {
+      const conflict = checkEventConflict(
+        {
+          id: initialData?.id,
+          startTime,
+          endTime,
+          year: selectedDate.year,
+          month: selectedDate.month,
+          day: selectedDate.day,
+        },
+        events
+      )
+      setConflictEvent(conflict)
+    } else {
+      setConflictEvent(null)
+    }
+  }, [isOpen, startTime, endTime, selectedDate, events, initialData])
 
   // Rellenar formulario con datos iniciales (modo edición) o resetear (modo creación)
   useEffect(() => {
@@ -201,6 +226,16 @@ function EventModal({ isOpen, onClose, onSave, initialData, selectedDate }) {
           </div>
           {errors.time && (
             <span className="event-modal__error" role="alert">{errors.time}</span>
+          )}
+
+          {/* Advertencia de solapamiento */}
+          {conflictEvent && (
+            <div className="event-modal__warning" role="alert">
+              <span className="event-modal__warning-icon" aria-hidden="true">⚠️</span>
+              <span className="event-modal__warning-text">
+                Conflicto de horario con: <strong>{conflictEvent.title}</strong> ({conflictEvent.startTime} - {conflictEvent.endTime})
+              </span>
+            </div>
           )}
 
           {/* Categoría */}

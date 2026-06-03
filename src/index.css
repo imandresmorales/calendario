@@ -1584,6 +1584,41 @@ a {
   transform: scale(0.97);
 }
 
+/* Overlap Warning inside EventModal */
+.event-modal__warning {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-top: 14px;
+  background-color: rgba(217, 119, 6, 0.08);
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  border-radius: var(--border-radius-sm);
+  color: hsl(35, 90%, 45%);
+  font-size: 12px;
+  animation: warningSlideIn var(--transition-fast) ease-out;
+}
+
+[data-theme="dark"] .event-modal__warning {
+  background-color: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: hsl(35, 90%, 62%);
+}
+
+.event-modal__warning-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.event-modal__warning-text {
+  line-height: 1.4;
+}
+
+@keyframes warningSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ==========================================================================
    TOAST NOTIFICATION SYSTEM
    ========================================================================== */
