@@ -11,6 +11,7 @@ import { useTheme } from './hooks/useTheme'
 import { useToast } from './context/ToastContext'
 import { eventsToICSString, parseICS, parseJSON } from './utils/importExportUtils'
 import ConfirmationModal from './components/ConfirmationModal/ConfirmationModal'
+import SkeletonLoader from './components/SkeletonLoader/SkeletonLoader'
 
 function App() {
   const {
@@ -33,6 +34,7 @@ function App() {
     importEvents,
     clearAllEvents,
     jumpToPeriod,
+    isReady,
   } = useCalendar()
 
   // Estado del modal de eventos
@@ -80,6 +82,13 @@ function App() {
   const handleYearChange = useCallback((e) => {
     jumpToPeriod(parseInt(e.target.value, 10), viewDate.month)
   }, [viewDate.month, jumpToPeriod])
+
+  // Mostrar skeleton mientras los datos de localStorage se hidratan (Mejora 26)
+  // IMPORTANTE: este return debe estar DESPUÉS de todos los hooks para cumplir
+  // las Reglas de Hooks de React (no hooks condicionales).
+  if (!isReady) {
+    return <SkeletonLoader />
+  }
 
   // Eventos del día seleccionado para el sidebar
   const todaysEvents = getEventsForDay(selectedDate.year, selectedDate.month, selectedDate.day)

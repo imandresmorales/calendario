@@ -1,14 +1,18 @@
-import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react'
+import React, { createContext, useContext, useReducer, useCallback, useEffect, useState } from 'react'
 import { loadEvents, saveEvents, generateEventId } from '../utils/storage'
 
 /**
  * CalendarContext.jsx
- * Estado global de la aplicación de calendario.
- * Utiliza useReducer para manejo predecible del estado,
- * evitando mutaciones directas (patrón Flux/Redux simplificado).
+ * Contexto global de React para el estado del calendario.
  *
- * Incluye CRUD completo de eventos con persistencia en localStorage
- * a través del módulo storage.js (validación de esquema y cuota).
+ * Arquitectura:
+ * - Patrón Reducer (useReducer) para transiciones de estado predecibles.
+ * - Context API para acceso global sin prop-drilling.
+ * - Custom hook (useCalendar) para encapsular toda la lógica de acceso al contexto.
+ * - Tipos de acción como constantes congeladas para prevenir errores tipográficos.
+ * - Persistencia en localStorage a través de storage.js.
+ * - Filtrado reactivo mediante useMemo (búsqueda + categorías).
+ * - Flag `isReady` para saber cuándo los datos de localStorage ya fueron hidratados.
  */
 
 const CalendarContext = createContext(null)
@@ -187,12 +191,21 @@ function calendarReducer(state, action) {
 export function CalendarProvider({ children }) {
   const [state, dispatch] = useReducer(calendarReducer, null, getInitialState)
 
+  /**
+   * isReady: indica que el estado ha sido hidratado desde localStorage.
+   * Se usa para mostrar skeleton loaders o spinners en la UI durante la carga inicial.
+   */
+  const [isReady, setIsReady] = useState(false)
+
   // Cargar eventos de localStorage al montar la app
   useEffect(() => {
     const stored = loadEvents()
     if (stored.length > 0) {
       dispatch({ type: ACTIONS.LOAD_EVENTS, payload: stored })
     }
+    // Marcar como listo inmediatamente después de intentar cargar
+    // (sea con datos o sin ellos) para revelar la UI
+    setIsReady(true)
   }, [])
 
   // Persistir eventos en localStorage cada vez que cambien
@@ -201,7 +214,7 @@ export function CalendarProvider({ children }) {
   }, [state.events])
 
   return (
-    <CalendarContext.Provider value={{ state, dispatch, ACTIONS }}>
+    <CalendarContext.Provider value={{ state, dispatch, ACTIONS, isReady }}>
       {children}
     </CalendarContext.Provider>
   )
@@ -222,7 +235,7 @@ export function useCalendar() {
     throw new Error('useCalendar debe usarse dentro de un <CalendarProvider>')
   }
 
-  const { state, dispatch, ACTIONS } = context
+  const { state, dispatch, ACTIONS, isReady } = context
 
   const selectDate = useCallback(
     (year, month, day) => {
@@ -360,6 +373,7 @@ export function useCalendar() {
     clearAllEvents,
     jumpToPeriod,
     getEventsForDay,
+    isReady,
   }
 }
 
