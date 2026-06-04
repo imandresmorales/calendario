@@ -256,6 +256,40 @@ function App() {
   }
 
   /**
+   * Estadisticas calculadas reactivamente de los eventos totales.
+   * Mejora 27: Panel de estadisticas en el Sidebar.
+   */
+  const stats = React.useMemo(() => {
+    const now = new Date()
+    const thisYear  = now.getFullYear()
+    const thisMonth = now.getMonth()
+    const today     = now.getDate()
+
+    let thisMonthTotal = 0
+    let upcomingNext7  = 0
+    const byCategory   = { work: 0, personal: 0, meeting: 0, holiday: 0 }
+
+    for (const evt of events) {
+      // Contador por categoria
+      if (byCategory[evt.category] !== undefined) {
+        byCategory[evt.category]++
+      }
+      // Eventos del mes actual
+      if (evt.year === thisYear && evt.month === thisMonth) {
+        thisMonthTotal++
+      }
+      // Eventos en los proximos 7 dias (hoy incluido)
+      const evtDate = new Date(evt.year, evt.month, evt.day)
+      const diff    = Math.floor((evtDate - new Date(thisYear, thisMonth, today)) / 86400000)
+      if (diff >= 0 && diff < 7) {
+        upcomingNext7++
+      }
+    }
+
+    return { total: events.length, byCategory, thisMonthTotal, upcomingNext7 }
+  }, [events])
+
+  /**
    * Renderiza la vista activa del calendario.
    * Las 4 vistas están implementadas: Mes, Año, Día y Agenda.
    */
@@ -308,6 +342,38 @@ function App() {
         <button className="add-event-btn" onClick={handleNewEvent}>
           <span aria-hidden="true">+</span> Nuevo Evento
         </button>
+
+        {/* Panel de estadísticas (Mejora 27) */}
+        <div className="stats-panel" aria-label="Estadísticas de eventos">
+          <div className="stats-panel__row">
+            <div className="stats-panel__stat">
+              <span className="stats-panel__num">{stats.total}</span>
+              <span className="stats-panel__label">Total</span>
+            </div>
+            <div className="stats-panel__stat">
+              <span className="stats-panel__num stats-panel__num--accent">{stats.thisMonthTotal}</span>
+              <span className="stats-panel__label">Este mes</span>
+            </div>
+            <div className="stats-panel__stat">
+              <span className="stats-panel__num stats-panel__num--highlight">{stats.upcomingNext7}</span>
+              <span className="stats-panel__label">Próx. 7d</span>
+            </div>
+          </div>
+          <div className="stats-panel__cats">
+            {[
+              { id: 'work',     label: 'Trabajo',    dot: 'dot-work'     },
+              { id: 'personal', label: 'Personal',   dot: 'dot-personal' },
+              { id: 'meeting',  label: 'Reuniones',  dot: 'dot-meeting'  },
+              { id: 'holiday',  label: 'Festivos',   dot: 'dot-holiday'  },
+            ].map(({ id, label, dot }) => (
+              <div key={id} className="stats-panel__cat">
+                <span className={`stats-panel__cat-dot dot ${dot}`} aria-hidden="true"></span>
+                <span className="stats-panel__cat-name">{label}</span>
+                <span className="stats-panel__cat-count">{stats.byCategory[id]}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Buscador de Eventos */}
         <div className="search-section">
