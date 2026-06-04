@@ -535,6 +535,16 @@ function App() {
               </button>
             ))}
           </div>
+
+          {/* Botón de impresión (Mejora 28) - oculto al imprimir via @media print */}
+          <button
+            className="print-btn print-hide"
+            onClick={() => window.print()}
+            aria-label="Imprimir vista del calendario"
+            title="Imprimir calendario"
+          >
+            🖨️ Imprimir
+          </button>
         </header>
 
         {/* Calendar view container */}
