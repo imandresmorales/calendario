@@ -3,28 +3,37 @@ import { useCalendar } from '../context/CalendarContext'
 
 /**
  * useKeyboardNavigation.js
- * Hook personalizado que añade navegación por teclado al calendario.
+ * Hook personalizado que añade navegación y atajos globales por teclado al calendario.
  *
  * Buenas prácticas de accesibilidad (a11y):
  * - Flechas izquierda/derecha: día anterior/siguiente.
  * - Flechas arriba/abajo: semana anterior/siguiente.
- * - Escape: cierra modales activos (preparado para futuro).
- * - Enter/Space: selecciona el día enfocado.
  * - Home: ir al primer día del mes.
  * - End: ir al último día del mes.
+ * - T: ir al día de hoy.
+ * - N: abrir modal de nuevo evento.
+ * - M: vista de Mes.
+ * - A: vista de Año.
+ * - D: vista de Día.
+ * - G: vista de Agenda.
+ * - ?: abrir/cerrar panel de atajos de teclado.
  *
  * Seguridad:
  * - Solo responde a teclas específicas (whitelist estricta).
- * - No ejecuta acciones si el foco está en un input/textarea para
+ * - No ejecuta acciones si el foco está en un input/textarea/select para
  *   evitar interferencias con la escritura del usuario.
+ * - Los callbacks opcionales se invocan solo si son funciones válidas.
+ *
+ * @param {Object}   options
+ * @param {Function} options.onNewEvent         - Callback para abrir modal de nuevo evento.
+ * @param {Function} options.onToggleShortcuts  - Callback para abrir/cerrar panel de atajos.
  */
-export function useKeyboardNavigation() {
+export function useKeyboardNavigation({ onNewEvent, onToggleShortcuts } = {}) {
   const {
     selectedDate,
     selectDate,
-    goToPreviousMonth,
-    goToNextMonth,
     goToToday,
+    setActiveView,
   } = useCalendar()
 
   /**
@@ -48,19 +57,32 @@ export function useKeyboardNavigation() {
       return
     }
 
+    // No interceptar si hay un modal abierto (aria-modal activo), excepto para '?' y Escape
+    const openModal = document.querySelector('[role="dialog"][aria-modal="true"]')
+    if (openModal && event.key !== 'Escape' && event.key !== '?') {
+      return
+    }
+
     // Whitelist estricta de teclas manejadas
     const handledKeys = [
       'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
-      'Home', 'End', 'Escape',
+      'Home', 'End',
+      't', 'T', 'n', 'N', 'm', 'M', 'a', 'A', 'd', 'D', 'g', 'G',
+      '?',
     ]
 
     if (!handledKeys.includes(event.key)) {
       return
     }
 
-    event.preventDefault()
+    // Solo prevenir default para teclas que pueden afectar el scroll/navegación del navegador
+    const scrollKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']
+    if (scrollKeys.includes(event.key)) {
+      event.preventDefault()
+    }
 
     switch (event.key) {
+      // ── Navegación por fechas ────────────────────────────────
       case 'ArrowLeft': {
         const prev = getOffsetDate(-1)
         selectDate(prev.year, prev.month, prev.day)
@@ -90,14 +112,57 @@ export function useKeyboardNavigation() {
         selectDate(selectedDate.year, selectedDate.month, lastDay)
         break
       }
-      case 'Escape': {
+
+      // ── Ir a hoy ─────────────────────────────────────────────
+      case 't':
+      case 'T': {
         goToToday()
         break
       }
+
+      // ── Cambio de vista ───────────────────────────────────────
+      case 'm':
+      case 'M': {
+        setActiveView('month')
+        break
+      }
+      case 'a':
+      case 'A': {
+        setActiveView('year')
+        break
+      }
+      case 'd':
+      case 'D': {
+        setActiveView('day')
+        break
+      }
+      case 'g':
+      case 'G': {
+        setActiveView('agenda')
+        break
+      }
+
+      // ── Nuevo evento ──────────────────────────────────────────
+      case 'n':
+      case 'N': {
+        if (typeof onNewEvent === 'function') {
+          onNewEvent()
+        }
+        break
+      }
+
+      // ── Panel de atajos ───────────────────────────────────────
+      case '?': {
+        if (typeof onToggleShortcuts === 'function') {
+          onToggleShortcuts()
+        }
+        break
+      }
+
       default:
         break
     }
-  }, [selectedDate, selectDate, goToToday, getOffsetDate])
+  }, [selectedDate, selectDate, goToToday, setActiveView, getOffsetDate, onNewEvent, onToggleShortcuts])
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)

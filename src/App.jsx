@@ -13,6 +13,7 @@ import { eventsToICSString, parseICS, parseJSON } from './utils/importExportUtil
 import ConfirmationModal from './components/ConfirmationModal/ConfirmationModal'
 import SkeletonLoader from './components/SkeletonLoader/SkeletonLoader'
 import EventPopover from './components/EventPopover/EventPopover'
+import KeyboardShortcutsModal from './components/KeyboardShortcutsModal/KeyboardShortcutsModal'
 
 function App() {
   const {
@@ -85,7 +86,17 @@ function App() {
   const monthNames = getMonthNames()
   const { theme, toggleTheme } = useTheme()
   const { addToast } = useToast()
-  useKeyboardNavigation() // Activar navegación por teclado (flechas, Home, End, Escape)
+
+  // Estado del panel de atajos de teclado (Mejora 30)
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false)
+  const toggleShortcuts = useCallback(() => setIsShortcutsOpen((prev) => !prev), [])
+
+  // Activar navegación por teclado con los nuevos atajos (flechas, vistas, nuevo evento, ?)
+  useKeyboardNavigation({
+    onNewEvent: handleNewEvent,
+    onToggleShortcuts: toggleShortcuts,
+  })
+
   const weekdayName = getWeekdayName(selectedDate.year, selectedDate.month, selectedDate.day)
 
   const yearsRange = React.useMemo(() => {
@@ -564,6 +575,16 @@ function App() {
           >
             🖨️ Imprimir
           </button>
+
+          {/* Botón de ayuda de atajos (Mejora 30) */}
+          <button
+            className="shortcuts-help-btn print-hide"
+            onClick={toggleShortcuts}
+            aria-label="Mostrar atajos de teclado"
+            title="Atajos de teclado (?)"
+          >
+            ⌨️
+          </button>
         </header>
 
         {/* Calendar view container */}
@@ -601,6 +622,12 @@ function App() {
         onEdit={handleEditEvent}
         onDelete={handleDeleteEvent}
         onAddEvent={handleNewEvent}
+      />
+
+      {/* Modal de atajos de teclado (Mejora 30) */}
+      <KeyboardShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
       />
     </div>
   )
