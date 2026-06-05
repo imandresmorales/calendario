@@ -33,7 +33,7 @@ const CATEGORY_LABELS = {
   holiday: 'Festivo',
 }
 
-function MonthGrid() {
+function MonthGrid({ onOpenPopover }) {
   const { viewDate, selectedDate, selectDate, filteredEvents, events } = useCalendar()
 
   // Estado del tooltip: { visible, dayKey, events, x, y }
@@ -49,7 +49,8 @@ function MonthGrid() {
 
   /**
    * Mapa de "año-mes-día" → lista de eventos (para dots y tooltip).
-   * Usa todos los eventos sin filtrar para el tooltip, pero filteredEvents para los dots visibles.
+   * Usa todos los eventos sin filtrar para el tooltip/popover,
+   * pero filteredEvents para los dots visibles.
    */
   const eventsPerDayMap = useMemo(() => {
     const map = {}
@@ -71,9 +72,23 @@ function MonthGrid() {
     return map
   }, [filteredEvents])
 
-  const handleDayClick = useCallback((dayObj) => {
+  /**
+   * Al hacer clic en un día:
+   * - Si tiene eventos y se proveyó onOpenPopover → abre el popover contextual.
+   * - De lo contrario → selecciona el día normalmente.
+   */
+  const handleDayClick = useCallback((dayObj, e) => {
     selectDate(dayObj.year, dayObj.month, dayObj.day)
-  }, [selectDate])
+    if (onOpenPopover) {
+      const key = `${dayObj.year}-${dayObj.month}-${dayObj.day}`
+      const dayEvents = eventsPerDayMap[key] || []
+      if (dayEvents.length > 0) {
+        const rect = e.currentTarget.getBoundingClientRect()
+        const dayLabel = `${monthNames[dayObj.month]} ${dayObj.day}, ${dayObj.year}`
+        onOpenPopover(dayEvents, rect, dayLabel)
+      }
+    }
+  }, [selectDate, onOpenPopover, eventsPerDayMap, monthNames])
 
   const handleDayMouseEnter = useCallback((dayObj, e) => {
     const key = `${dayObj.year}-${dayObj.month}-${dayObj.day}`
@@ -152,7 +167,7 @@ function MonthGrid() {
                 aria-label={ariaLabel}
                 aria-selected={isSameDay(dayObj, selectedDate)}
                 tabIndex={dayObj.isCurrentMonth ? 0 : -1}
-                onClick={() => handleDayClick(dayObj)}
+                onClick={(e) => handleDayClick(dayObj, e)}
                 onMouseEnter={(e) => handleDayMouseEnter(dayObj, e)}
                 onMouseLeave={handleDayMouseLeave}
               >

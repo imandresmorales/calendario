@@ -12,6 +12,7 @@ import { useToast } from './context/ToastContext'
 import { eventsToICSString, parseICS, parseJSON } from './utils/importExportUtils'
 import ConfirmationModal from './components/ConfirmationModal/ConfirmationModal'
 import SkeletonLoader from './components/SkeletonLoader/SkeletonLoader'
+import EventPopover from './components/EventPopover/EventPopover'
 
 function App() {
   const {
@@ -41,6 +42,22 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState(null)
 
+  // Estado del popover de eventos del día (Mejora 29)
+  const [popover, setPopover] = useState({
+    isOpen: false,
+    events: [],
+    anchorRect: null,
+    dayLabel: '',
+  })
+
+  const openPopover = useCallback((dayEvents, anchorRect, dayLabel) => {
+    setPopover({ isOpen: true, events: dayEvents, anchorRect, dayLabel })
+  }, [])
+
+  const closePopover = useCallback(() => {
+    setPopover((prev) => ({ ...prev, isOpen: false }))
+  }, [])
+
   // Estado del modal de confirmación personalizado
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -63,6 +80,7 @@ function App() {
   const closeConfirm = useCallback(() => {
     setConfirmModal((prev) => ({ ...prev, isOpen: false }))
   }, [])
+
 
   const monthNames = getMonthNames()
   const { theme, toggleTheme } = useTheme()
@@ -296,7 +314,8 @@ function App() {
   const renderActiveView = () => {
     switch (activeView) {
       case 'month':
-        return <MonthGrid />
+        // Pasamos openPopover para que MonthGrid pueda abrir el popover al hacer clic
+        return <MonthGrid onOpenPopover={openPopover} />
       case 'year':
         return <YearView />
       case 'day':
@@ -304,7 +323,7 @@ function App() {
       case 'agenda':
         return <AgendaView />
       default:
-        return <MonthGrid />
+        return <MonthGrid onOpenPopover={openPopover} />
     }
   }
 
@@ -570,6 +589,18 @@ function App() {
         title={confirmModal.title}
         message={confirmModal.message}
         type={confirmModal.type}
+      />
+
+      {/* Popover contextual de eventos del día (Mejora 29) */}
+      <EventPopover
+        isOpen={popover.isOpen}
+        events={popover.events}
+        anchorRect={popover.anchorRect}
+        dayLabel={popover.dayLabel}
+        onClose={closePopover}
+        onEdit={handleEditEvent}
+        onDelete={handleDeleteEvent}
+        onAddEvent={handleNewEvent}
       />
     </div>
   )
