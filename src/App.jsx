@@ -23,6 +23,7 @@ import SkeletonLoader from './components/SkeletonLoader/SkeletonLoader'
 import EventPopover from './components/EventPopover/EventPopover'
 import KeyboardShortcutsModal from './components/KeyboardShortcutsModal/KeyboardShortcutsModal'
 import { useDebounce } from './hooks/useDebounce'
+import { useDynamicFavicon } from './hooks/useDynamicFavicon'
 
 function App() {
   const {
@@ -95,6 +96,9 @@ function App() {
   const monthNames = getMonthNames()
   const { theme, toggleTheme } = useTheme()
   const { addToast } = useToast()
+
+  // Mejora 39: Favicon dinámico con el día actual del mes
+  useDynamicFavicon()
 
   // Estado del panel de atajos de teclado (Mejora 30)
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false)
