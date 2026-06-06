@@ -3487,3 +3487,60 @@ input[type="checkbox"]:focus-visible {
   color: var(--accent);
   opacity: 0.5;
 }
+
+/* =========================================================
+   MEJORA 42 - Badge contador de eventos en tabs de vista
+   Píldora numérica sobre los botones Mes/Año/Día/Agenda.
+   ========================================================= */
+
+@keyframes badge-pop {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.view-btn {
+  position: relative;
+}
+
+.view-btn__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  margin-left: 5px;
+  vertical-align: middle;
+  animation: badge-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+
+/* Badge con colores más vivos en el botón activo */
+.view-btn.active .view-btn__badge {
+  background: rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+
+/* Modo claro */
+[data-theme="light"] .view-btn__badge {
+  background: var(--accent);
+  color: #fff;
+}
+
+[data-theme="light"] .view-btn.active .view-btn__badge {
+  background: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view-btn__badge {
+    animation: none;
+  }
+}

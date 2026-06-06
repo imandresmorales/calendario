@@ -345,6 +345,41 @@ function App() {
   }, [events])
 
   /**
+   * Mejora 42: Contadores de eventos por vista.
+   * Muestra badges contextuales en las pestañas de vista:
+   * - Mes: eventos del mes actual de viewDate.
+   * - Año: total de eventos del año de viewDate.
+   * - Día: eventos del día seleccionado.
+   * - Agenda: eventos en los próximos 7 días.
+   */
+  const viewEventCounts = React.useMemo(() => {
+    const now = new Date()
+    const todayY = now.getFullYear()
+    const todayM = now.getMonth()
+    const todayD = now.getDate()
+
+    const monthCount = events.filter(
+      (e) => e.year === viewDate.year && e.month === viewDate.month
+    ).length
+
+    const yearCount = events.filter((e) => e.year === viewDate.year).length
+
+    const dayCount = events.filter(
+      (e) => e.year === selectedDate.year && e.month === selectedDate.month && e.day === selectedDate.day
+    ).length
+
+    let agendaCount = 0
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(todayY, todayM, todayD + i)
+      agendaCount += events.filter(
+        (e) => e.year === d.getFullYear() && e.month === d.getMonth() && e.day === d.getDate()
+      ).length
+    }
+
+    return { month: monthCount, year: yearCount, day: dayCount, agenda: agendaCount }
+  }, [events, viewDate, selectedDate])
+
+  /**
    * Renderiza la vista activa del calendario.
    * Las 4 vistas están implementadas: Mes, Año, Día y Agenda.
    * Vistas secundarias cargadas con React.lazy (Mejora 34).
@@ -589,20 +624,28 @@ function App() {
 
           {/* View Mode Toggle Buttons */}
           <div className="view-selector glass-card" role="tablist" aria-label="Selector de vista del calendario">
-            {['month', 'year', 'day', 'agenda'].map((view) => (
-              <button
-                key={view}
-                role="tab"
-                aria-selected={activeView === view}
-                className={`view-btn ${activeView === view ? 'active' : ''}`}
-                onClick={() => setActiveView(view)}
-              >
-                {view === 'month' && 'Mes'}
-                {view === 'year' && 'Año'}
-                {view === 'day' && 'Día'}
-                {view === 'agenda' && 'Agenda'}
-              </button>
-            ))}
+            {['month', 'year', 'day', 'agenda'].map((view) => {
+              const count = viewEventCounts[view]
+              return (
+                <button
+                  key={view}
+                  role="tab"
+                  aria-selected={activeView === view}
+                  className={`view-btn ${activeView === view ? 'active' : ''}`}
+                  onClick={() => setActiveView(view)}
+                >
+                  {view === 'month' && 'Mes'}
+                  {view === 'year' && 'Año'}
+                  {view === 'day' && 'Día'}
+                  {view === 'agenda' && 'Agenda'}
+                  {count > 0 && (
+                    <span className="view-btn__badge" aria-label={`${count} eventos`}>
+                      {count > 99 ? '99+' : count}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
           </div>
 
           {/* Botón de impresión (Mejora 28) - oculto al imprimir via @media print */}
