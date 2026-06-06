@@ -3317,3 +3317,121 @@ input[type="checkbox"]:focus-visible {
     transform: none !important;
   }
 }
+
+/* =========================================================
+   MEJORA 38 - EmptyState: Estado vacío con ilustración SVG
+   Se muestra cuando no hay eventos en la vista actual.
+   Animación de entrada + SVG temático + CTA opcional.
+   ========================================================= */
+
+@keyframes empty-state-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes empty-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  animation: empty-state-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.empty-state__illustration {
+  animation: empty-float 3.5s ease-in-out infinite;
+}
+
+.empty-state__svg {
+  overflow: visible;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.25));
+}
+
+/* SVG colores usando variables CSS — automático en dark/light */
+.empty-state__cal-bg {
+  fill: var(--bg-secondary);
+  stroke: var(--border-color);
+  stroke-width: 1.5;
+}
+
+.empty-state__cal-header {
+  fill: var(--accent);
+  opacity: 0.85;
+}
+
+.empty-state__ring {
+  fill: var(--border-color);
+}
+
+.empty-state__line {
+  fill: var(--text-muted);
+  opacity: 0.4;
+}
+
+.empty-state__badge {
+  fill: var(--color-holiday);
+  opacity: 0.9;
+}
+
+.empty-state__badge-icon {
+  fill: white;
+  font-weight: bold;
+}
+
+.empty-state__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.empty-state__desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  max-width: 260px;
+  line-height: 1.5;
+}
+
+.empty-state__action {
+  margin-top: 4px;
+  padding: 9px 20px;
+  border-radius: var(--border-radius-sm);
+  background: var(--accent);
+  color: white;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.empty-state__action:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.empty-state__action:active {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .empty-state {
+    animation: none;
+  }
+  .empty-state__illustration {
+    animation: none;
+  }
+}

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { useCalendar } from '../../context/CalendarContext'
 import { getMonthNames, getWeekdayName, getDaysInMonth } from '../../utils/dateUtils'
+import EmptyState from '../EmptyState/EmptyState'
 
 /**
  * AgendaView.jsx
@@ -106,52 +107,66 @@ function AgendaView() {
     return groups
   }, [upcomingDays])
 
+  // Verificar si hay algún evento en los próximos 30 días
+  const hasAnyEvent = useMemo(() => {
+    return upcomingDays.some(
+      (d) => getEventsForDay(d.year, d.month, d.day).length > 0
+    )
+  }, [upcomingDays, getEventsForDay])
+
   return (
     <div className="agenda-view" role="region" aria-label="Vista de agenda">
-      {groupedByMonth.map((group) => (
-        <div key={group.key} className="agenda-view__group">
-          <h3 className="agenda-view__month-header">{group.label}</h3>
+      {!hasAnyEvent ? (
+        <EmptyState
+          title="Sin eventos próximos"
+          description="No hay eventos en los próximos 30 días. ¡Agrega uno para empezar!"
+        />
+      ) : (
+        groupedByMonth.map((group) => (
+          <div key={group.key} className="agenda-view__group">
+            <h3 className="agenda-view__month-header">{group.label}</h3>
 
-          {group.days.map((dayObj, index) => {
-            const dayEvents = getEventsForDay(dayObj.year, dayObj.month, dayObj.day)
-              .sort((a, b) => a.startTime.localeCompare(b.startTime))
+            {group.days.map((dayObj, index) => {
+              const dayEvents = getEventsForDay(dayObj.year, dayObj.month, dayObj.day)
+                .sort((a, b) => a.startTime.localeCompare(b.startTime))
 
-            return (
-              <button
-                key={index}
-                className={`agenda-view__day-row ${dayObj.isToday ? 'agenda-view__day-row--today' : ''} ${dayEvents.length > 0 ? 'agenda-view__day-row--has-events' : ''}`}
-                onClick={() => handleDayClick(dayObj)}
-                aria-label={`${dayObj.weekday} ${dayObj.day} de ${dayObj.monthLabel}${dayEvents.length > 0 ? `, ${dayEvents.length} eventos` : ''}`}
-              >
-                <div className="agenda-view__date-block">
-                  <span className="agenda-view__day-number">{dayObj.day}</span>
-                  <span className="agenda-view__weekday">{dayObj.weekday}</span>
-                </div>
+              return (
+                <button
+                  key={index}
+                  className={`agenda-view__day-row ${dayObj.isToday ? 'agenda-view__day-row--today' : ''} ${dayEvents.length > 0 ? 'agenda-view__day-row--has-events' : ''}`}
+                  onClick={() => handleDayClick(dayObj)}
+                  aria-label={`${dayObj.weekday} ${dayObj.day} de ${dayObj.monthLabel}${dayEvents.length > 0 ? `, ${dayEvents.length} eventos` : ''}`}
+                >
+                  <div className="agenda-view__date-block">
+                    <span className="agenda-view__day-number">{dayObj.day}</span>
+                    <span className="agenda-view__weekday">{dayObj.weekday}</span>
+                  </div>
 
-                <div className="agenda-view__events-area">
-                  {dayEvents.length > 0 ? (
-                    <div className="agenda-view__event-list">
-                      {dayEvents.map((evt) => (
-                        <div key={evt.id} className="agenda-view__event-item">
-                          <span className={`dot ${CATEGORY_DOT[evt.category] || 'dot-work'}`} aria-hidden="true"></span>
-                          <span className="agenda-view__event-time">{evt.startTime}</span>
-                          <span className="agenda-view__event-title">{evt.title}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="agenda-view__no-events">Sin eventos</span>
+                  <div className="agenda-view__events-area">
+                    {dayEvents.length > 0 ? (
+                      <div className="agenda-view__event-list">
+                        {dayEvents.map((evt) => (
+                          <div key={evt.id} className="agenda-view__event-item">
+                            <span className={`dot ${CATEGORY_DOT[evt.category] || 'dot-work'}`} aria-hidden="true"></span>
+                            <span className="agenda-view__event-time">{evt.startTime}</span>
+                            <span className="agenda-view__event-title">{evt.title}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="agenda-view__no-events">Sin eventos</span>
+                    )}
+                  </div>
+
+                  {dayObj.isToday && (
+                    <span className="agenda-view__today-badge">Hoy</span>
                   )}
-                </div>
-
-                {dayObj.isToday && (
-                  <span className="agenda-view__today-badge">Hoy</span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-      ))}
+                </button>
+              )
+            })}
+          </div>
+        ))
+      )}
     </div>
   )
 }
