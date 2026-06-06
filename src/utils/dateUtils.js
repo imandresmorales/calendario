@@ -184,3 +184,27 @@ export function isSameDay(a, b) {
   const vb = getValues(b)
   return va.year === vb.year && va.month === vb.month && va.day === vb.day
 }
+
+/**
+ * Mejora 41: Número de semana ISO 8601 para una fecha dada.
+ * Las semanas ISO empiezan el lunes y la semana 1 contiene el primer jueves del año.
+ * @param {number} year  - El año.
+ * @param {number} month - El mes (0-indexado).
+ * @param {number} day   - El día del mes.
+ * @returns {number} Número de semana ISO (1-53).
+ */
+export function getISOWeekNumber(year, month, day) {
+  const date = new Date(year, month, day)
+  // Ajustar para que la semana empiece el lunes (ISO: jueves es el día pivot)
+  const dayOfWeek = (date.getDay() + 6) % 7 // 0=Lun, 6=Dom
+  // Jueves de esta semana
+  const thursday = new Date(date)
+  thursday.setDate(date.getDate() - dayOfWeek + 3)
+  // Primer jueves del año
+  const firstThursday = new Date(thursday.getFullYear(), 0, 4)
+  const firstDayOfWeek = (firstThursday.getDay() + 6) % 7
+  firstThursday.setDate(firstThursday.getDate() - firstDayOfWeek + 3)
+  // Número de semana = distancia en semanas entre los dos jueves
+  const diff = thursday - firstThursday
+  return 1 + Math.round(diff / 604800000) // 604800000 ms = 7 días
+}

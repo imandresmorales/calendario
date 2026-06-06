@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react'
 import { useCalendar } from '../../context/CalendarContext'
-import { getCalendarGridDays, getWeekdayNames, isSameDay, getMonthNames } from '../../utils/dateUtils'
+import { getCalendarGridDays, getWeekdayNames, isSameDay, getMonthNames, getISOWeekNumber } from '../../utils/dateUtils'
 
 /**
  * MonthGrid.jsx
@@ -136,8 +136,12 @@ function MonthGrid({ onOpenPopover }) {
   return (
     <>
       <div className="month-grid" role="grid" aria-label="Calendario mensual">
-        {/* Fila de encabezados de días de la semana */}
+        {/* Fila de encabezados de días de la semana + columna Semana */}
         <div className="month-grid__weekdays" role="row">
+          {/* Columna de número de semana (Mejora 41) */}
+          <div className="month-grid__weekday-name month-grid__week-num-header" role="columnheader" aria-label="Semana ISO">
+            <abbr title="Número de semana ISO">Sem</abbr>
+          </div>
           {weekdays.map((name, index) => (
             <div
               key={index}
@@ -150,8 +154,8 @@ function MonthGrid({ onOpenPopover }) {
           ))}
         </div>
 
-        {/* Cuadrícula de días */}
-        <div className="month-grid__days" role="rowgroup">
+        {/* Cuadrícula de días con número de semana ISO (Mejora 41) */}
+        <div className="month-grid__days month-grid__days--with-weeks" role="rowgroup">
           {gridDays.map((dayObj, index) => {
             const key = `${dayObj.year}-${dayObj.month}-${dayObj.day}`
             const dayEventCount = (eventsPerDayMap[key] || []).length
@@ -159,24 +163,40 @@ function MonthGrid({ onOpenPopover }) {
               ? `${dayObj.day} de ${monthNames[dayObj.month]}, ${dayEventCount} ${dayEventCount === 1 ? 'evento' : 'eventos'}`
               : `${dayObj.day} de ${monthNames[dayObj.month]}`
 
+            // Insertar badge de semana ISO al inicio de cada fila (cada 7 celdas)
+            const isStartOfWeek = index % 7 === 0
+            const weekNum = isStartOfWeek
+              ? getISOWeekNumber(dayObj.year, dayObj.month, dayObj.day)
+              : null
+
             return (
-              <button
-                key={index}
-                className={getDayClasses(dayObj)}
-                role="gridcell"
-                aria-label={ariaLabel}
-                aria-selected={isSameDay(dayObj, selectedDate)}
-                tabIndex={dayObj.isCurrentMonth ? 0 : -1}
-                onClick={(e) => handleDayClick(dayObj, e)}
-                onMouseEnter={(e) => handleDayMouseEnter(dayObj, e)}
-                onMouseLeave={handleDayMouseLeave}
-              >
-                <span className="month-grid__day-number">{dayObj.day}</span>
-                {dayObj.isToday && (
-                  <span className="month-grid__today-dot" aria-hidden="true"></span>
+              <React.Fragment key={index}>
+                {isStartOfWeek && (
+                  <span
+                    className="month-grid__week-num"
+                    aria-label={`Semana ${weekNum}`}
+                    title={`Semana ISO ${weekNum}`}
+                  >
+                    {weekNum}
+                  </span>
                 )}
-                {getEventDots(dayObj)}
-              </button>
+                <button
+                  className={getDayClasses(dayObj)}
+                  role="gridcell"
+                  aria-label={ariaLabel}
+                  aria-selected={isSameDay(dayObj, selectedDate)}
+                  tabIndex={dayObj.isCurrentMonth ? 0 : -1}
+                  onClick={(e) => handleDayClick(dayObj, e)}
+                  onMouseEnter={(e) => handleDayMouseEnter(dayObj, e)}
+                  onMouseLeave={handleDayMouseLeave}
+                >
+                  <span className="month-grid__day-number">{dayObj.day}</span>
+                  {dayObj.isToday && (
+                    <span className="month-grid__today-dot" aria-hidden="true"></span>
+                  )}
+                  {getEventDots(dayObj)}
+                </button>
+              </React.Fragment>
             )
           })}
         </div>
