@@ -3123,3 +3123,34 @@ a {
 [data-theme="light"] .shortcuts-modal__footer {
   border-top-color: rgba(0, 0, 0, 0.07);
 }
+
+/* =========================================================
+   MEJORA 31 - prefers-reduced-motion
+   Desactiva animaciones y transiciones para usuarios que
+   han configurado "reducir movimiento" en su sistema.
+   WCAG 2.1 SC 2.3.3 — accesibilidad obligatoria.
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Mantener visibilidad de elementos que dependen de animaciones */
+  .day-tooltip,
+  .event-popover,
+  .shortcuts-modal,
+  .skeleton-overlay,
+  .toast {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
