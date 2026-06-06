@@ -194,9 +194,18 @@ function EventModal({ isOpen, onClose, onSave, initialData, selectedDate }) {
               required
               autoComplete="off"
             />
-            {errors.title && (
-              <span className="event-modal__error" role="alert">{errors.title}</span>
-            )}
+            <div className="event-modal__field-footer">
+              {errors.title && (
+                <span className="event-modal__error" role="alert">{errors.title}</span>
+              )}
+              <span
+                className={`event-modal__char-count ${title.length > 80 ? (title.length > 95 ? 'event-modal__char-count--danger' : 'event-modal__char-count--warn') : ''}`}
+                aria-live="polite"
+                aria-label={`${title.length} de 100 caracteres`}
+              >
+                {title.length}/100
+              </span>
+            </div>
           </div>
 
           {/* Horas */}
@@ -269,6 +278,13 @@ function EventModal({ isOpen, onClose, onSave, initialData, selectedDate }) {
               maxLength={500}
               rows={3}
             />
+            <span
+              className={`event-modal__char-count ${description.length > 400 ? (description.length > 475 ? 'event-modal__char-count--danger' : 'event-modal__char-count--warn') : ''}`}
+              aria-live="polite"
+              aria-label={`${description.length} de 500 caracteres`}
+            >
+              {description.length}/500
+            </span>
           </div>
 
           {/* Acciones */}

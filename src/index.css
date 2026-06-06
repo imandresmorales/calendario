@@ -3239,3 +3239,50 @@ input[type="checkbox"]:focus-visible {
   border-color: rgba(0, 0, 0, 0.08);
   border-top-color: var(--accent);
 }
+
+/* =========================================================
+   MEJORA 35 - Contador de caracteres en EventModal
+   Muestra X/max debajo de título y descripción con estados
+   de color warning/danger al acercarse al límite.
+   ========================================================= */
+
+.event-modal__field-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.event-modal__char-count {
+  font-size: 0.68rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted, rgba(255,255,255,0.35));
+  text-align: right;
+  margin-top: 4px;
+  transition: color var(--transition-fast, 0.15s ease);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.event-modal__char-count--warn {
+  color: hsl(40, 95%, 55%);
+}
+
+.event-modal__char-count--danger {
+  color: hsl(0, 75%, 55%);
+  font-weight: 700;
+}
+
+[data-theme="light"] .event-modal__char-count {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="light"] .event-modal__char-count--warn {
+  color: hsl(35, 90%, 42%);
+}
+
+[data-theme="light"] .event-modal__char-count--danger {
+  color: hsl(0, 70%, 48%);
+}
