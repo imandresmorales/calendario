@@ -3154,3 +3154,57 @@ a {
     scroll-behavior: auto;
   }
 }
+
+/* =========================================================
+   MEJORA 33 - Focus Visible Ring personalizado
+   Muestra un anillo de enfoque solo cuando el usuario navega
+   con teclado (no al hacer clic con mouse). Mejora a11y.
+   WCAG 2.1 SC 2.4.7 — Focus Visible.
+   ========================================================= */
+
+/* Eliminar outline por defecto del navegador */
+*:focus {
+  outline: none;
+}
+
+/* Anillo de enfoque premium solo visible con teclado */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* Botones y controles interactivos */
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+[role="tab"]:focus-visible,
+[role="gridcell"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--accent-glow);
+}
+
+/* Inputs de texto */
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+  border-color: var(--accent) !important;
+}
+
+/* Checkboxes */
+input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Para modo claro, refuerza el contraste */
+[data-theme="light"] *:focus-visible {
+  outline-color: hsl(262, 83%, 48%);
+}
+
+[data-theme="light"] button:focus-visible,
+[data-theme="light"] a:focus-visible {
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
+}
