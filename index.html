@@ -15,10 +15,27 @@
     <meta property="og:description" content="Gestiona tus eventos con un calendario moderno, seguro y elegante." />
     <meta property="og:type" content="website" />
 
-    <!-- Seguridad: Content Security Policy básica -->
+    <!-- Seguridad: Cabeceras de protección -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-Frame-Options" content="DENY" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!--
+      Mejora 36: Content Security Policy (CSP) estricta.
+      - default-src 'self': solo permite recursos del mismo origen.
+      - script-src 'self': scripts solo del mismo origen (no eval, no inline sin nonce).
+      - style-src 'self' 'unsafe-inline' fonts.googleapis.com: CSS propio + Google Fonts.
+      - font-src fonts.gstatic.com: tipografías solo de Google Fonts.
+      - img-src 'self' data:: imágenes propias y data URIs.
+      - connect-src 'self': fetch/XHR solo al mismo origen.
+      - object-src 'none': bloquea plugins (Flash, Java).
+      - base-uri 'self': previene ataques de base tag injection.
+      - form-action 'self': formularios solo al mismo origen.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';" />
+
+    <!-- Mejora 36: Permissions Policy — deshabilitar APIs del navegador no utilizadas -->
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
