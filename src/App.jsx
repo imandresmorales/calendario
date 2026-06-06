@@ -622,8 +622,13 @@ function App() {
           </button>
         </header>
 
-        {/* Calendar view container */}
-        <div className="calendar-view-container" role="tabpanel">
+        {/* Calendar view container — key fuerza remontaje para animación (Mejora 37) */}
+        <div
+          key={activeView}
+          className="calendar-view-container view-enter"
+          role="tabpanel"
+          aria-label={`Vista de ${activeView}`}
+        >
           {renderActiveView()}
         </div>
       </main>
