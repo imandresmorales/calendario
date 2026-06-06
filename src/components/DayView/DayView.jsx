@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect, useRef } from 'react'
 import { useCalendar } from '../../context/CalendarContext'
 import { formatFullDate } from '../../utils/dateUtils'
 
@@ -11,6 +11,7 @@ import { formatFullDate } from '../../utils/dateUtils'
  * - Indicador visual de la hora actual si es el día de hoy.
  * - Renderiza los eventos reales del día en la franja horaria correspondiente.
  * - Accesibilidad con etiquetas ARIA descriptivas.
+ * - Mejora 40: Scroll automático a la hora actual al abrir la vista.
  *
  * Seguridad:
  * - Solo muestra datos ya sanitizados por el módulo sanitize.js.
@@ -19,14 +20,19 @@ import { formatFullDate } from '../../utils/dateUtils'
 
 /** Mapa de categoría a clase CSS para el borde de color */
 const CATEGORY_BORDER_CLASS = {
-  work: 'var(--color-work)',
+  work:     'var(--color-work)',
   personal: 'var(--color-personal)',
-  meeting: 'var(--color-meeting)',
-  holiday: 'var(--color-holiday)',
+  meeting:  'var(--color-meeting)',
+  holiday:  'var(--color-holiday)',
 }
 
 function DayView() {
   const { selectedDate, getEventsForDay } = useCalendar()
+
+  /** Ref al contenedor del timeline para controlar el scroll */
+  const timelineRef = useRef(null)
+  /** Ref a la franja de la hora actual para hacer scrollIntoView */
+  const currentHourRef = useRef(null)
 
   const formattedDate = useMemo(
     () => formatFullDate(selectedDate.year, selectedDate.month, selectedDate.day),
@@ -74,6 +80,26 @@ function DayView() {
     })
   }
 
+  /**
+   * Mejora 40: Scroll automático a la hora actual.
+   * Cuando la vista es el día de hoy, hace scroll suave al slot de la hora actual
+   * con un offset para mostrar contexto por encima.
+   * Solo se ejecuta al montar el componente o al cambiar el día seleccionado.
+   */
+  useEffect(() => {
+    if (!currentHourRef.current) return
+
+    // Pequeño delay para que el layout esté pintado
+    const timer = setTimeout(() => {
+      currentHourRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    }, 120)
+
+    return () => clearTimeout(timer)
+  }, [selectedDate.year, selectedDate.month, selectedDate.day])
+
   return (
     <div className="day-view" role="region" aria-label={`Vista de día: ${formattedDate}`}>
       <div className="day-view__header">
@@ -83,20 +109,22 @@ function DayView() {
         </span>
       </div>
 
-      <div className="day-view__timeline">
+      <div ref={timelineRef} className="day-view__timeline">
         {hours.map(({ hour, label }) => {
           const hourEvents = getEventsForHour(hour)
+          const isCurrent = isCurrentHour(hour)
 
           return (
             <div
               key={hour}
-              className={`day-view__slot ${isCurrentHour(hour) ? 'day-view__slot--current' : ''}`}
+              ref={isCurrent ? currentHourRef : null}
+              className={`day-view__slot ${isCurrent ? 'day-view__slot--current' : ''}`}
               role="row"
               aria-label={`Franja horaria ${label}`}
             >
               <span className="day-view__time-label">{label}</span>
               <div className="day-view__slot-content">
-                {isCurrentHour(hour) && (
+                {isCurrent && (
                   <div className="day-view__now-indicator" aria-label="Hora actual">
                     <span className="day-view__now-dot" aria-hidden="true"></span>
                     <span className="day-view__now-line" aria-hidden="true"></span>
