@@ -3208,3 +3208,34 @@ input[type="checkbox"]:focus-visible {
 [data-theme="light"] a:focus-visible {
   box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
 }
+
+/* =========================================================
+   MEJORA 34 - Spinner de carga para vistas lazy-loaded
+   Fallback visual mínimo para React.Suspense.
+   ========================================================= */
+
+.view-loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  width: 100%;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spinner-rotate 0.7s linear infinite;
+}
+
+@keyframes spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+
+[data-theme="light"] .spinner {
+  border-color: rgba(0, 0, 0, 0.08);
+  border-top-color: var(--accent);
+}

@@ -1,10 +1,18 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, Suspense } from 'react'
 import { useCalendar } from './context/CalendarContext'
 import { getMonthNames, getWeekdayName } from './utils/dateUtils'
 import MonthGrid from './components/MonthGrid/MonthGrid'
-import YearView from './components/YearView/YearView'
-import DayView from './components/DayView/DayView'
-import AgendaView from './components/AgendaView/AgendaView'
+
+/**
+ * Mejora 34: Lazy Loading de vistas secundarias.
+ * YearView, DayView y AgendaView se cargan solo cuando el usuario las solicita.
+ * MonthGrid se mantiene eagerly loaded porque es la vista por defecto.
+ * Esto reduce el bundle inicial y mejora el First Contentful Paint (FCP).
+ */
+const YearView   = React.lazy(() => import('./components/YearView/YearView'))
+const DayView    = React.lazy(() => import('./components/DayView/DayView'))
+const AgendaView = React.lazy(() => import('./components/AgendaView/AgendaView'))
+
 import EventModal from './components/EventModal/EventModal'
 import { useKeyboardNavigation } from './hooks/useKeyboardNavigation'
 import { useTheme } from './hooks/useTheme'
@@ -335,6 +343,7 @@ function App() {
   /**
    * Renderiza la vista activa del calendario.
    * Las 4 vistas están implementadas: Mes, Año, Día y Agenda.
+   * Vistas secundarias cargadas con React.lazy (Mejora 34).
    */
   const renderActiveView = () => {
     switch (activeView) {
@@ -342,11 +351,23 @@ function App() {
         // Pasamos openPopover para que MonthGrid pueda abrir el popover al hacer clic
         return <MonthGrid onOpenPopover={openPopover} />
       case 'year':
-        return <YearView />
+        return (
+          <Suspense fallback={<div className="view-loading-spinner" aria-label="Cargando vista..."><span className="spinner" /></div>}>
+            <YearView />
+          </Suspense>
+        )
       case 'day':
-        return <DayView />
+        return (
+          <Suspense fallback={<div className="view-loading-spinner" aria-label="Cargando vista..."><span className="spinner" /></div>}>
+            <DayView />
+          </Suspense>
+        )
       case 'agenda':
-        return <AgendaView />
+        return (
+          <Suspense fallback={<div className="view-loading-spinner" aria-label="Cargando vista..."><span className="spinner" /></div>}>
+            <AgendaView />
+          </Suspense>
+        )
       default:
         return <MonthGrid onOpenPopover={openPopover} />
     }
