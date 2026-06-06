@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { useCalendar } from './context/CalendarContext'
 import { getMonthNames, getWeekdayName } from './utils/dateUtils'
 import MonthGrid from './components/MonthGrid/MonthGrid'
@@ -14,6 +14,7 @@ import ConfirmationModal from './components/ConfirmationModal/ConfirmationModal'
 import SkeletonLoader from './components/SkeletonLoader/SkeletonLoader'
 import EventPopover from './components/EventPopover/EventPopover'
 import KeyboardShortcutsModal from './components/KeyboardShortcutsModal/KeyboardShortcutsModal'
+import { useDebounce } from './hooks/useDebounce'
 
 function App() {
   const {
@@ -98,6 +99,19 @@ function App() {
   })
 
   const weekdayName = getWeekdayName(selectedDate.year, selectedDate.month, selectedDate.day)
+
+  /**
+   * Mejora 32: Debounce en el buscador.
+   * - localSearchInput: valor instantáneo del input (UI responsive).
+   * - debouncedQuery: valor retrasado 250ms que actualiza el contexto.
+   * Esto evita re-renders costosos del filteredEvents en cada keystroke.
+   */
+  const [localSearchInput, setLocalSearchInput] = useState(searchQuery)
+  const debouncedQuery = useDebounce(localSearchInput, 250)
+
+  useEffect(() => {
+    setSearchQuery(debouncedQuery)
+  }, [debouncedQuery, setSearchQuery])
 
   const yearsRange = React.useMemo(() => {
     const startYear = new Date().getFullYear() - 10
@@ -405,12 +419,12 @@ function App() {
           </div>
         </div>
 
-        {/* Buscador de Eventos */}
+        {/* Buscador de Eventos (debounceado – Mejora 32) */}
         <div className="search-section">
           <input
             type="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={localSearchInput}
+            onChange={(e) => setLocalSearchInput(e.target.value)}
             placeholder="Buscar eventos..."
             className="search-input"
             aria-label="Buscar eventos por título o descripción"
