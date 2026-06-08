@@ -94,7 +94,7 @@ function App() {
 
 
   const monthNames = getMonthNames()
-  const { theme, toggleTheme } = useTheme()
+  const { theme, toggleTheme, highContrast, toggleHighContrast } = useTheme()
   const { addToast } = useToast()
 
   // Mejora 39: Favicon dinámico con el día actual del mes
@@ -429,6 +429,16 @@ function App() {
               title={theme === 'dark' ? 'Tema claro' : 'Tema oscuro'}
             >
               {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+            {/* Mejora 44: Toggle de alto contraste */}
+            <button
+              className={`theme-toggle-btn high-contrast-btn ${highContrast ? 'high-contrast-btn--active' : ''}`}
+              onClick={toggleHighContrast}
+              aria-label={highContrast ? 'Desactivar alto contraste' : 'Activar alto contraste'}
+              aria-pressed={highContrast}
+              title="Alto contraste"
+            >
+              ◑
             </button>
             <span className="badge">v1.0.0</span>
           </div>

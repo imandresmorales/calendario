@@ -3590,3 +3590,106 @@ input[type="checkbox"]:focus-visible {
     animation: none;
   }
 }
+
+/* =========================================================
+   MEJORA 44 - Modo de Alto Contraste
+   Activo con data-high-contrast="true" en <html>.
+   Cumple con WCAG 2.1 SC 1.4.3 (nivel AA) y SC 1.4.6 (AAA).
+   Ratios de contraste mínimo 4.5:1 texto/fondo.
+   ========================================================= */
+
+/* Botón de toggle de alto contraste */
+.high-contrast-btn {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.high-contrast-btn--active {
+  color: var(--accent) !important;
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Modo oscuro de alto contraste */
+[data-high-contrast="true"][data-theme="dark"] {
+  --bg-primary:    #000000;
+  --bg-secondary:  #0a0a0a;
+  --text-primary:  #ffffff;
+  --text-secondary: #e0e0e0;
+  --text-muted:    #b0b0b0;
+  --accent:        hsl(262, 100%, 80%);
+  --accent-hover:  hsl(262, 100%, 88%);
+  --accent-glow:   rgba(180, 150, 255, 0.3);
+  --border-color:  #666666;
+  --border-glow:   rgba(180, 150, 255, 0.5);
+  --glass-bg:      rgba(0, 0, 0, 0.95);
+  --glass-border:  rgba(255, 255, 255, 0.4);
+  --shadow-md:     0 4px 12px rgba(255, 255, 255, 0.15);
+}
+
+/* Modo claro de alto contraste */
+[data-high-contrast="true"][data-theme="light"] {
+  --bg-primary:    #ffffff;
+  --bg-secondary:  #f0f0f0;
+  --text-primary:  #000000;
+  --text-secondary: #1a1a1a;
+  --text-muted:    #3a3a3a;
+  --accent:        hsl(262, 100%, 30%);
+  --accent-hover:  hsl(262, 100%, 22%);
+  --accent-glow:   rgba(80, 0, 200, 0.12);
+  --border-color:  #333333;
+  --border-glow:   rgba(80, 0, 200, 0.35);
+  --glass-bg:      rgba(255, 255, 255, 0.98);
+  --glass-border:  rgba(0, 0, 0, 0.5);
+}
+
+/* Bordes más visibles en elementos clave */
+[data-high-contrast="true"] .glass-card,
+[data-high-contrast="true"] .month-grid,
+[data-high-contrast="true"] .day-view,
+[data-high-contrast="true"] .agenda-view,
+[data-high-contrast="true"] .event-modal {
+  border-width: 2px !important;
+}
+
+/* Todos los botones e inputs con bordes legibles */
+[data-high-contrast="true"] button,
+[data-high-contrast="true"] input,
+[data-high-contrast="true"] select,
+[data-high-contrast="true"] textarea {
+  border: 1.5px solid var(--border-color) !important;
+}
+
+/* Dots de categoría más grandes para mayor visibilidad */
+[data-high-contrast="true"] .dot {
+  width: 10px !important;
+  height: 10px !important;
+  outline: 1px solid rgba(255,255,255,0.6);
+}
+
+/* Focus ring más grueso */
+[data-high-contrast="true"] *:focus-visible {
+  outline-width: 3px !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px var(--accent-glow) !important;
+}
+
+/* Texto de eventos con mayor peso */
+[data-high-contrast="true"] .month-grid__day-number,
+[data-high-contrast="true"] .agenda-view__event-title,
+[data-high-contrast="true"] .day-view__event-title {
+  font-weight: 700 !important;
+}
+
+/* Indicador del modo activo en el banner (sutil) */
+[data-high-contrast="true"]::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent);
+  z-index: 99999;
+  pointer-events: none;
+}
