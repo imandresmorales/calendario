@@ -3544,3 +3544,49 @@ input[type="checkbox"]:focus-visible {
     animation: none;
   }
 }
+
+/* =========================================================
+   MEJORA 43 - Chip de duración en EventModal
+   Muestra la duración calculada en tiempo real entre los
+   selectores de hora de inicio y fin.
+   ========================================================= */
+
+.event-modal__duration {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: var(--accent-glow);
+  border: 1px solid var(--border-glow);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-top: 4px;
+  animation: duration-fade 0.2s ease both;
+}
+
+@keyframes duration-fade {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.event-modal__duration-icon {
+  font-size: 0.8rem;
+}
+
+.event-modal__duration-text {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="light"] .event-modal__duration {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.2);
+  color: hsl(262, 83%, 48%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .event-modal__duration {
+    animation: none;
+  }
+}

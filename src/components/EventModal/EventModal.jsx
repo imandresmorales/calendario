@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { validateEventTitle, validateEventDescription, validateTimeRange } from '../../utils/sanitize'
 import { useCalendar } from '../../context/CalendarContext'
 import { checkEventConflict } from '../../utils/conflictUtils'
+import { formatEventDuration } from '../../utils/dateUtils'
 
 /**
  * EventModal.jsx
@@ -236,6 +237,17 @@ function EventModal({ isOpen, onClose, onSave, initialData, selectedDate }) {
           {errors.time && (
             <span className="event-modal__error" role="alert">{errors.time}</span>
           )}
+
+          {/* Mejora 43: Duración calculada en tiempo real */}
+          {(() => {
+            const dur = formatEventDuration(startTime, endTime)
+            return dur ? (
+              <div className="event-modal__duration" aria-live="polite">
+                <span className="event-modal__duration-icon" aria-hidden="true">⏱</span>
+                <span className="event-modal__duration-text">{dur}</span>
+              </div>
+            ) : null
+          })()}
 
           {/* Advertencia de solapamiento */}
           {conflictEvent && (

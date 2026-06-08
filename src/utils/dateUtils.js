@@ -208,3 +208,30 @@ export function getISOWeekNumber(year, month, day) {
   const diff = thursday - firstThursday
   return 1 + Math.round(diff / 604800000) // 604800000 ms = 7 días
 }
+
+/**
+ * Mejora 43: Calcula y formatea la duración entre dos horas.
+ * Función pura sin efectos secundarios.
+ *
+ * @param {string} startTime - Hora de inicio "HH:MM".
+ * @param {string} endTime   - Hora de fin "HH:MM".
+ * @returns {string|null} Duración formateada ("2h 30min", "45min", "2h") o null si inválida.
+ */
+export function formatEventDuration(startTime, endTime) {
+  if (!startTime || !endTime) return null
+
+  const [startH, startM] = startTime.split(':').map(Number)
+  const [endH, endM]     = endTime.split(':').map(Number)
+
+  if (isNaN(startH) || isNaN(startM) || isNaN(endH) || isNaN(endM)) return null
+
+  const totalMinutes = (endH * 60 + endM) - (startH * 60 + startM)
+  if (totalMinutes <= 0) return null
+
+  const hours   = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+
+  if (hours === 0)    return `${minutes}min`
+  if (minutes === 0)  return `${hours}h`
+  return `${hours}h ${minutes}min`
+}
