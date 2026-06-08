@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef } from 'react'
+import React, { useMemo, useEffect, useRef, useState, useCallback } from 'react'
 import { useCalendar } from '../../context/CalendarContext'
 import { formatFullDate } from '../../utils/dateUtils'
 
@@ -10,15 +10,17 @@ import { formatFullDate } from '../../utils/dateUtils'
  * - Muestra las 24 franjas horarias del día seleccionado.
  * - Indicador visual de la hora actual si es el día de hoy.
  * - Renderiza los eventos reales del día en la franja horaria correspondiente.
- * - Accesibilidad con etiquetas ARIA descriptivas.
  * - Mejora 40: Scroll automático a la hora actual al abrir la vista.
+ * - Mejora 45: Drag-and-drop nativo para reprogramar eventos a otra franja horaria.
  *
  * Seguridad:
  * - Solo muestra datos ya sanitizados por el módulo sanitize.js.
  * - No usa dangerouslySetInnerHTML.
+ * - El ID del evento se transfiere por dataTransfer.setData como texto plano.
+ * - No se evalúa ningún dato del dataTransfer antes de validar el evento.
  */
 
-/** Mapa de categoría a clase CSS para el borde de color */
+/** Mapa de categoría a color CSS para el borde de color */
 const CATEGORY_BORDER_CLASS = {
   work:     'var(--color-work)',
   personal: 'var(--color-personal)',
@@ -27,12 +29,20 @@ const CATEGORY_BORDER_CLASS = {
 }
 
 function DayView() {
-  const { selectedDate, getEventsForDay } = useCalendar()
+  const { selectedDate, getEventsForDay, updateEvent } = useCalendar()
 
   /** Ref al contenedor del timeline para controlar el scroll */
-  const timelineRef = useRef(null)
+  const timelineRef    = useRef(null)
   /** Ref a la franja de la hora actual para hacer scrollIntoView */
   const currentHourRef = useRef(null)
+
+  /**
+   * Mejora 45: Estado del drag-and-drop.
+   * dragOverHour: la franja horaria sobre la que está el cursor (para highlight).
+   * draggingId:   el id del evento que se está arrastrando.
+   */
+  const [dragOverHour, setDragOverHour] = useState(null)
+  const [draggingId,   setDraggingId]   = useState(null)
 
   const formattedDate = useMemo(
     () => formatFullDate(selectedDate.year, selectedDate.month, selectedDate.day),
@@ -47,7 +57,6 @@ function DayView() {
 
   /**
    * Genera las 24 franjas horarias del día.
-   * Cada franja muestra la hora en formato HH:00.
    */
   const hours = useMemo(() => {
     return Array.from({ length: 24 }, (_, i) => {
@@ -71,7 +80,6 @@ function DayView() {
 
   /**
    * Obtiene los eventos que comienzan en una hora específica.
-   * Parsea la hora de inicio (HH:MM) para comparar con la franja.
    */
   const getEventsForHour = (hour) => {
     return dayEvents.filter((evt) => {
@@ -81,46 +89,109 @@ function DayView() {
   }
 
   /**
-   * Mejora 40: Scroll automático a la hora actual.
-   * Cuando la vista es el día de hoy, hace scroll suave al slot de la hora actual
-   * con un offset para mostrar contexto por encima.
-   * Solo se ejecuta al montar el componente o al cambiar el día seleccionado.
+   * Mejora 40: Scroll automático a la hora actual al montar.
    */
   useEffect(() => {
     if (!currentHourRef.current) return
-
-    // Pequeño delay para que el layout esté pintado
     const timer = setTimeout(() => {
       currentHourRef.current?.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
       })
     }, 120)
-
     return () => clearTimeout(timer)
   }, [selectedDate.year, selectedDate.month, selectedDate.day])
+
+  /* ─── Mejora 45: Drag-and-Drop Handlers ──────────────────────────────── */
+
+  /**
+   * Al comenzar a arrastrar un evento, guarda su ID en el dataTransfer.
+   * Solo se transfiere texto plano (el ID), sin datos sensibles.
+   */
+  const handleDragStart = useCallback((e, evt) => {
+    // Transferir solo el ID como string (whitelist implícita: UUID del evento)
+    e.dataTransfer.setData('text/plain', evt.id)
+    e.dataTransfer.effectAllowed = 'move'
+    setDraggingId(evt.id)
+  }, [])
+
+  /** Al soltar el evento sobre una franja, actualiza la hora de inicio/fin. */
+  const handleDrop = useCallback((e, targetHour) => {
+    e.preventDefault()
+    const eventId = e.dataTransfer.getData('text/plain')
+
+    // Validar que el ID corresponde a un evento real (no ejecutar datos arbitrarios)
+    const draggedEvent = dayEvents.find((ev) => ev.id === eventId)
+    if (!draggedEvent) {
+      setDragOverHour(null)
+      setDraggingId(null)
+      return
+    }
+
+    // Calcular la duración original para mantenerla al mover
+    const [startH, startM] = draggedEvent.startTime.split(':').map(Number)
+    const [endH,   endM]   = draggedEvent.endTime.split(':').map(Number)
+    const durationMinutes  = (endH * 60 + endM) - (startH * 60 + startM)
+
+    // Nueva hora de inicio: la franja destino con los mismos minutos
+    const newStartMinutes = targetHour * 60 + startM
+    const newEndMinutes   = Math.min(newStartMinutes + durationMinutes, 23 * 60 + 59)
+
+    const pad     = (n) => String(n).padStart(2, '0')
+    const newStart = `${pad(Math.floor(newStartMinutes / 60))}:${pad(newStartMinutes % 60)}`
+    const newEnd   = `${pad(Math.floor(newEndMinutes / 60))}:${pad(newEndMinutes % 60)}`
+
+    // Solo actualizar si la hora cambió (evita escrituras innecesarias)
+    if (newStart !== draggedEvent.startTime) {
+      updateEvent({ ...draggedEvent, startTime: newStart, endTime: newEnd })
+    }
+
+    setDragOverHour(null)
+    setDraggingId(null)
+  }, [dayEvents, updateEvent])
+
+  const handleDragEnd = useCallback(() => {
+    setDragOverHour(null)
+    setDraggingId(null)
+  }, [])
 
   return (
     <div className="day-view" role="region" aria-label={`Vista de día: ${formattedDate}`}>
       <div className="day-view__header">
         <h3 className="day-view__title">{formattedDate}</h3>
-        <span className="day-view__event-count">
-          {dayEvents.length} {dayEvents.length === 1 ? 'evento' : 'eventos'}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span className="day-view__event-count">
+            {dayEvents.length} {dayEvents.length === 1 ? 'evento' : 'eventos'}
+          </span>
+          {/* Hint de drag solo si hay eventos */}
+          {dayEvents.length > 0 && (
+            <span className="day-view__drag-hint" aria-hidden="true">
+              ↕ Arrastra para reprogramar
+            </span>
+          )}
+        </div>
       </div>
 
       <div ref={timelineRef} className="day-view__timeline">
         {hours.map(({ hour, label }) => {
           const hourEvents = getEventsForHour(hour)
-          const isCurrent = isCurrentHour(hour)
+          const isCurrent  = isCurrentHour(hour)
+          const isDragOver = dragOverHour === hour && draggingId !== null
 
           return (
             <div
               key={hour}
               ref={isCurrent ? currentHourRef : null}
-              className={`day-view__slot ${isCurrent ? 'day-view__slot--current' : ''}`}
+              className={`day-view__slot ${isCurrent ? 'day-view__slot--current' : ''} ${isDragOver ? 'day-view__slot--drag-over' : ''}`}
               role="row"
               aria-label={`Franja horaria ${label}`}
+              onDragOver={(e) => {
+                e.preventDefault()
+                e.dataTransfer.dropEffect = 'move'
+                setDragOverHour(hour)
+              }}
+              onDragLeave={() => setDragOverHour(null)}
+              onDrop={(e) => handleDrop(e, hour)}
             >
               <span className="day-view__time-label">{label}</span>
               <div className="day-view__slot-content">
@@ -131,14 +202,17 @@ function DayView() {
                   </div>
                 )}
 
-                {/* Eventos posicionados en esta franja */}
+                {/* Eventos arrastables (Mejora 45) */}
                 {hourEvents.map((evt) => (
                   <div
                     key={evt.id}
-                    className="day-view__event-block"
+                    className={`day-view__event-block ${draggingId === evt.id ? 'day-view__event-block--dragging' : ''}`}
                     style={{ borderLeftColor: CATEGORY_BORDER_CLASS[evt.category] || 'var(--accent)' }}
                     role="article"
                     aria-label={`Evento: ${evt.title} de ${evt.startTime} a ${evt.endTime}`}
+                    draggable="true"
+                    onDragStart={(e) => handleDragStart(e, evt)}
+                    onDragEnd={handleDragEnd}
                   >
                     <div className="day-view__event-time">
                       {evt.startTime} – {evt.endTime}

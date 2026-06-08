@@ -3693,3 +3693,54 @@ input[type="checkbox"]:focus-visible {
   z-index: 99999;
   pointer-events: none;
 }
+
+/* =========================================================
+   MEJORA 45 - Drag-and-Drop para reprogramar eventos en DayView
+   Arrastra una tarjeta de evento a otra franja horaria para
+   actualizar su hora de inicio/fin conservando la duración.
+   ========================================================= */
+
+/* Cursor de arrastre en los bloques de evento */
+.day-view__event-block {
+  cursor: grab;
+}
+
+.day-view__event-block:active {
+  cursor: grabbing;
+}
+
+/* Estado del evento siendo arrastrado (ghost más transparente) */
+.day-view__event-block--dragging {
+  opacity: 0.4;
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+/* Franja horaria resaltada durante el drag-over */
+.day-view__slot--drag-over {
+  background: rgba(124, 58, 237, 0.10);
+  border-radius: var(--border-radius-sm);
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+  transition: background 0.1s ease, outline 0.1s ease;
+}
+
+[data-theme="light"] .day-view__slot--drag-over {
+  background: rgba(124, 58, 237, 0.07);
+}
+
+/* Hint de arrastre en el header de DayView */
+.day-view__drag-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-style: italic;
+  user-select: none;
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day-view__event-block--dragging {
+    transform: none;
+  }
+}
