@@ -25,6 +25,7 @@ import KeyboardShortcutsModal from './components/KeyboardShortcutsModal/Keyboard
 import { useDebounce } from './hooks/useDebounce'
 import { useDynamicFavicon } from './hooks/useDynamicFavicon'
 import { useEventReminder } from './hooks/useEventReminder'
+import { useDocumentTitle } from './hooks/useDocumentTitle'
 
 function App() {
   const {
@@ -103,6 +104,9 @@ function App() {
 
   // Mejora 47: Recordatorio de eventos próximos (≤15 min) vía toast
   useEventReminder(events, addToast)
+
+  // Mejora 48: Título dinámico de la pestaña del navegador
+  useDocumentTitle(viewDate, activeView, selectedDate)
 
   // Estado del panel de atajos de teclado (Mejora 30)
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false)
