@@ -3850,3 +3850,79 @@ input[type="checkbox"]:focus-visible {
     animation: none;
   }
 }
+
+/* =========================================================
+   MEJORA 50 - Barra de progreso del día actual en el sidebar
+   Visible solo cuando el día seleccionado es hoy.
+   Muestra qué porcentaje del día ha transcurrido.
+   ========================================================= */
+
+.day-progress {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.day-progress__bar-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.day-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Pista de fondo */
+.day-progress::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  position: relative;
+  order: 1;
+}
+
+/* Barra de progreso (relleno) */
+.day-progress__bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), hsl(280, 80%, 70%));
+  border-radius: 9999px;
+  min-width: 2px;
+  max-width: 100%;
+  order: 1;
+  margin-top: -4px;   /* Superponer sobre el track */
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 0 6px var(--accent-glow);
+  position: relative;
+  z-index: 1;
+}
+
+.day-progress__label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-align: center;
+  order: 2;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="light"] .day-progress::before {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .day-progress__bar {
+  background: linear-gradient(90deg, var(--accent), hsl(280, 80%, 55%));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day-progress__bar {
+    transition: none;
+  }
+}

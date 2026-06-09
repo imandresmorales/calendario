@@ -108,6 +108,34 @@ function App() {
   // Mejora 48: Título dinámico de la pestaña del navegador
   useDocumentTitle(viewDate, activeView, selectedDate)
 
+  /**
+   * Mejora 50: Progreso del día actual en porcentaje (0-100).
+   * Se actualiza cada 60 segundos. Solo visible si hoy es el día seleccionado.
+   */
+  const [dayProgress, setDayProgress] = useState(() => {
+    const now = new Date()
+    return Math.round((now.getHours() * 60 + now.getMinutes()) / 14.4) // /14.4 = /1440*100
+  })
+
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date()
+      setDayProgress(Math.round((now.getHours() * 60 + now.getMinutes()) / 14.4))
+    }
+    const id = setInterval(tick, 60_000)
+    return () => clearInterval(id)
+  }, [])
+
+  // ¿El día seleccionado es hoy?
+  const isSelectedToday = (() => {
+    const now = new Date()
+    return (
+      selectedDate.year  === now.getFullYear() &&
+      selectedDate.month === now.getMonth()    &&
+      selectedDate.day   === now.getDate()
+    )
+  })()
+
   // Estado del panel de atajos de teclado (Mejora 30)
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false)
   const toggleShortcuts = useCallback(() => setIsShortcutsOpen((prev) => !prev), [])
@@ -475,6 +503,21 @@ function App() {
           <p className="month-year-label">
             {monthNames[selectedDate.month]}, {selectedDate.year}
           </p>
+
+          {/* Mejora 50: Barra de progreso del día actual */}
+          {isSelectedToday && (
+            <div className="day-progress" aria-label={`Progreso del día: ${dayProgress}%`}>
+              <div
+                className="day-progress__bar"
+                role="progressbar"
+                aria-valuenow={dayProgress}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                style={{ width: `${dayProgress}%` }}
+              ></div>
+              <span className="day-progress__label">{dayProgress}% del día</span>
+            </div>
+          )}
         </div>
 
         {/* Botón para agregar evento */}
