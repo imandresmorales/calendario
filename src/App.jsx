@@ -24,6 +24,7 @@ import EventPopover from './components/EventPopover/EventPopover'
 import KeyboardShortcutsModal from './components/KeyboardShortcutsModal/KeyboardShortcutsModal'
 import { useDebounce } from './hooks/useDebounce'
 import { useDynamicFavicon } from './hooks/useDynamicFavicon'
+import { useEventReminder } from './hooks/useEventReminder'
 
 function App() {
   const {
@@ -99,6 +100,9 @@ function App() {
 
   // Mejora 39: Favicon dinámico con el día actual del mes
   useDynamicFavicon()
+
+  // Mejora 47: Recordatorio de eventos próximos (≤15 min) vía toast
+  useEventReminder(events, addToast)
 
   // Estado del panel de atajos de teclado (Mejora 30)
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false)
