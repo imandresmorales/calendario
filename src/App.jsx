@@ -529,6 +529,20 @@ function App() {
                 </div>
               ))}
             </div>
+          ) : !isReady ? (
+            /* Mejora 46: Skeleton loader mientras se restaura localStorage */
+            <div className="events-list" aria-busy="true" aria-label="Cargando eventos...">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="event-card event-card--skeleton">
+                  <div className="event-card__header">
+                    <span className="skeleton-dot"></span>
+                    <span className="skeleton-line skeleton-line--sm"></span>
+                  </div>
+                  <span className="skeleton-line skeleton-line--md"></span>
+                  <span className="skeleton-line skeleton-line--lg"></span>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="events-list-placeholder">
               <p className="no-events-text">No hay eventos para este día.</p>

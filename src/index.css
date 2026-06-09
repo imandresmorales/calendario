@@ -3744,3 +3744,70 @@ input[type="checkbox"]:focus-visible {
     transform: none;
   }
 }
+
+/* =========================================================
+   MEJORA 46 - Skeleton loader en el sidebar de eventos
+   Mientras isReady es false (carga desde localStorage),
+   se muestran tarjetas skeleton con animación shimmer.
+   ========================================================= */
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.event-card--skeleton {
+  cursor: default;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.event-card--skeleton:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Base shimmer para todos los elementos skeleton */
+.skeleton-dot,
+.skeleton-line {
+  display: block;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 25%,
+    rgba(255,255,255,0.06) 50%,
+    var(--bg-secondary) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.4s infinite linear;
+}
+
+[data-theme="light"] .skeleton-dot,
+[data-theme="light"] .skeleton-line {
+  background: linear-gradient(
+    90deg,
+    #e5e7eb 25%,
+    #f3f4f6 50%,
+    #e5e7eb 75%
+  );
+  background-size: 800px 100%;
+}
+
+.skeleton-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-line--sm  { width: 60px;  height: 10px; }
+.skeleton-line--md  { width: 80%;   height: 12px; margin-top: 6px; }
+.skeleton-line--lg  { width: 55%;   height: 10px; margin-top: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-dot,
+  .skeleton-line {
+    animation: none;
+    opacity: 0.5;
+  }
+}
