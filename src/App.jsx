@@ -223,15 +223,22 @@ function App() {
   }, [events, clearAllEvents, triggerConfirm, addToast])
 
   /**
-   * Exporta todos los eventos en formato JSON.
+   * Mejora 49: Exporta los eventos respetando los filtros activos.
+   * Si hay filtros de categoría o búsqueda activos, exporta solo los eventos
+   * que pasan el filtro (filteredEvents). De lo contrario, exporta todos.
    */
   const handleExportJSON = useCallback(() => {
-    if (events.length === 0) {
+    // Determinar qué conjunto exportar
+    const hasFilters = searchQuery.trim().length > 0 ||
+      selectedCategories.length < 4  // Hay categorías deseleccionadas
+    const eventsToExport = hasFilters ? filteredEvents : events
+
+    if (eventsToExport.length === 0) {
       addToast('No hay eventos para exportar', 'warning')
       return
     }
     try {
-      const dataStr = JSON.stringify(events, null, 2)
+      const dataStr = JSON.stringify(eventsToExport, null, 2)
       const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr)
       const exportFileDefaultName = `astrocal_events_${new Date().toISOString().slice(0, 10)}.json`
 
@@ -239,22 +246,29 @@ function App() {
       linkElement.setAttribute('href', dataUri)
       linkElement.setAttribute('download', exportFileDefaultName)
       linkElement.click()
-      addToast('Eventos exportados en JSON', 'success')
+
+      const msg = hasFilters
+        ? `${eventsToExport.length} evento(s) exportados en JSON (filtrados)`
+        : `${eventsToExport.length} evento(s) exportados en JSON`
+      addToast(msg, 'success')
     } catch (e) {
       addToast('Error al exportar eventos', 'error')
     }
-  }, [events, addToast])
+  }, [events, filteredEvents, searchQuery, selectedCategories, addToast])
 
   /**
-   * Exporta todos los eventos en formato iCalendar (.ics).
+   * Mejora 49: Exporta en ICS respetando filtros activos.
    */
   const handleExportICS = useCallback(() => {
-    if (events.length === 0) {
+    const hasFilters = searchQuery.trim().length > 0 || selectedCategories.length < 4
+    const eventsToExport = hasFilters ? filteredEvents : events
+
+    if (eventsToExport.length === 0) {
       addToast('No hay eventos para exportar', 'warning')
       return
     }
     try {
-      const icsString = eventsToICSString(events)
+      const icsString = eventsToICSString(eventsToExport)
       const blob = new Blob([icsString], { type: 'text/calendar;charset=utf-8' })
       const dataUri = URL.createObjectURL(blob)
       const exportFileDefaultName = `astrocal_calendar_${new Date().toISOString().slice(0, 10)}.ics`
@@ -263,13 +277,16 @@ function App() {
       linkElement.setAttribute('href', dataUri)
       linkElement.setAttribute('download', exportFileDefaultName)
       linkElement.click()
-      
+
       setTimeout(() => URL.revokeObjectURL(dataUri), 100)
-      addToast('Calendario exportado en ICS', 'success')
+      const msg = hasFilters
+        ? `${eventsToExport.length} evento(s) exportados en ICS (filtrados)`
+        : `${eventsToExport.length} evento(s) exportados en ICS`
+      addToast(msg, 'success')
     } catch (e) {
       addToast('Error al exportar iCalendar', 'error')
     }
-  }, [events, addToast])
+  }, [events, filteredEvents, searchQuery, selectedCategories, eventsToICSString, addToast])
 
   /**
    * Importa eventos desde un archivo JSON o ICS con validación y sanitización estricta.
@@ -592,12 +609,30 @@ function App() {
         <div className="data-section">
           <h3>Datos</h3>
           <div className="data-buttons">
-            <button className="data-btn" onClick={handleExportJSON} title="Exportar eventos como JSON">
-              📥 JSON
-            </button>
-            <button className="data-btn" onClick={handleExportICS} title="Exportar eventos como ICS (Outlook/Google)">
-              📅 ICS
-            </button>
+            {/* Mejora 49: Los botones indican si se exporta el subconjunto filtrado */}
+            {(() => {
+              const hasFilters = searchQuery.trim().length > 0 || selectedCategories.length < 4
+              const count = hasFilters ? filteredEvents.length : events.length
+              const suffix = hasFilters ? ` (${count} filtrados)` : ` (${count})`
+              return (
+                <>
+                  <button
+                    className={`data-btn ${hasFilters ? 'data-btn--filtered' : ''}`}
+                    onClick={handleExportJSON}
+                    title={`Exportar eventos como JSON${suffix}`}
+                  >
+                    📥 JSON{hasFilters && <span className="data-btn__filter-indicator" aria-hidden="true">⚙</span>}
+                  </button>
+                  <button
+                    className={`data-btn ${hasFilters ? 'data-btn--filtered' : ''}`}
+                    onClick={handleExportICS}
+                    title={`Exportar como ICS (Outlook/Google)${suffix}`}
+                  >
+                    📅 ICS{hasFilters && <span className="data-btn__filter-indicator" aria-hidden="true">⚙</span>}
+                  </button>
+                </>
+              )
+            })()}
             <label className="data-btn data-btn--upload" title="Importar desde JSON o ICS">
               📤 Importar
               <input

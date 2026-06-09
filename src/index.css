@@ -3811,3 +3811,42 @@ input[type="checkbox"]:focus-visible {
     opacity: 0.5;
   }
 }
+
+/* =========================================================
+   MEJORA 49 - Exportación respetando filtros activos
+   Botones de exportación con indicador cuando hay filtros.
+   ========================================================= */
+
+/* Botón de exportación con filtros activos */
+.data-btn--filtered {
+  border-color: hsl(180, 60%, 45%) !important;
+  background: rgba(0, 200, 200, 0.07) !important;
+  color: hsl(180, 70%, 65%) !important;
+}
+
+[data-theme="light"] .data-btn--filtered {
+  border-color: hsl(180, 60%, 35%) !important;
+  background: rgba(0, 180, 180, 0.08) !important;
+  color: hsl(180, 70%, 32%) !important;
+}
+
+/* Icono de engranaje indicador de filtro */
+.data-btn__filter-indicator {
+  display: inline-block;
+  font-size: 0.6rem;
+  margin-left: 3px;
+  vertical-align: super;
+  opacity: 0.8;
+  animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .data-btn__filter-indicator {
+    animation: none;
+  }
+}
