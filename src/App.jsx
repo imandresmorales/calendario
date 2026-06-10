@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, Suspense } from 'react'
 import { useCalendar } from './context/CalendarContext'
 import { getMonthNames, getWeekdayName } from './utils/dateUtils'
 import MonthGrid from './components/MonthGrid/MonthGrid'
+import { AriaLiveAnnouncer, announceToScreenReader } from './components/AriaLiveAnnouncer/AriaLiveAnnouncer'
 
 /**
  * Mejora 34: Lazy Loading de vistas secundarias.
@@ -116,6 +117,20 @@ function App() {
 
   // Mejora 48: Título dinámico de la pestaña del navegador
   useDocumentTitle(viewDate, activeView, selectedDate)
+
+  // Anunciar cambios de vista y fecha para lectores de pantalla
+  useEffect(() => {
+    if (isReady) {
+      const monthName = monthNames[viewDate.month]
+      let viewLabel = ''
+      if (activeView === 'month') viewLabel = 'Mes'
+      else if (activeView === 'year') viewLabel = 'Año'
+      else if (activeView === 'day') viewLabel = 'Día'
+      else if (activeView === 'agenda') viewLabel = 'Agenda'
+
+      announceToScreenReader(`Vista de ${viewLabel} activa. Mostrando ${monthName} de ${viewDate.year}.`)
+    }
+  }, [viewDate.year, viewDate.month, activeView, isReady])
 
   /**
    * Mejora 50: Progreso del día actual en porcentaje (0-100).
@@ -469,7 +484,10 @@ function App() {
   }
 
   return (
-    <div className="calendar-layout">
+    <>
+      <a href="#main-content" className="skip-link">Saltar al contenido principal</a>
+      <AriaLiveAnnouncer />
+      <div className="calendar-layout">
       {/* Sidebar: Event manager & filters */}
       <aside className="calendar-sidebar glass-card" role="complementary" aria-label="Panel lateral del calendario">
         <div className="sidebar-header">
@@ -715,7 +733,7 @@ function App() {
       </aside>
 
       {/* Main Calendar View Area */}
-      <main className="calendar-main glass-card" role="main" aria-label="Vista principal del calendario">
+      <main id="main-content" className="calendar-main glass-card" role="main" aria-label="Vista principal del calendario" tabIndex="-1">
         {/* Navigation & Header */}
         <header className="calendar-header">
           <div className="navigation-controls">
@@ -849,6 +867,7 @@ function App() {
         onClose={() => setIsShortcutsOpen(false)}
       />
     </div>
+    </>
   )
 }
 
