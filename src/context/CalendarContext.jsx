@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useCallback, useEffect, useState } from 'react'
+import React, { createContext, useContext, useReducer, useCallback, useEffect, useState, useMemo } from 'react'
 import { loadEvents, saveEvents, generateEventId } from '../utils/storage'
 
 /**

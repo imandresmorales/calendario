@@ -33,6 +33,7 @@ function App() {
     viewDate,
     activeView,
     events,
+    filteredEvents,
     goToPreviousMonth,
     goToNextMonth,
     goToToday,
@@ -54,6 +55,14 @@ function App() {
   // Estado del modal de eventos
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState(null)
+
+  /**
+   * Abre el modal para crear un nuevo evento.
+   */
+  const handleNewEvent = useCallback(() => {
+    setEditingEvent(null)
+    setIsModalOpen(true)
+  }, [])
 
   // Estado del popover de eventos del día (Mejora 29)
   const [popover, setPopover] = useState({
@@ -174,23 +183,12 @@ function App() {
     jumpToPeriod(parseInt(e.target.value, 10), viewDate.month)
   }, [viewDate.month, jumpToPeriod])
 
-  // Mostrar skeleton mientras los datos de localStorage se hidratan (Mejora 26)
-  // IMPORTANTE: este return debe estar DESPUÉS de todos los hooks para cumplir
-  // las Reglas de Hooks de React (no hooks condicionales).
-  if (!isReady) {
-    return <SkeletonLoader />
-  }
+
 
   // Eventos del día seleccionado para el sidebar
   const todaysEvents = getEventsForDay(selectedDate.year, selectedDate.month, selectedDate.day)
 
-  /**
-   * Abre el modal para crear un nuevo evento.
-   */
-  const handleNewEvent = useCallback(() => {
-    setEditingEvent(null)
-    setIsModalOpen(true)
-  }, [])
+
 
   /**
    * Abre el modal para editar un evento existente.
@@ -463,6 +461,11 @@ function App() {
       default:
         return <MonthGrid onOpenPopover={openPopover} />
     }
+  }
+
+  // Mostrar skeleton mientras los datos de localStorage se hidratan (Mejora 26)
+  if (!isReady) {
+    return <SkeletonLoader />
   }
 
   return (

@@ -17,3 +17,12 @@ createRoot(document.getElementById('root')).render(
     </ErrorBoundary>
   </StrictMode>,
 )
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((reg) => console.log('[AstroCal] Service Worker registrado:', reg.scope))
+      .catch((err) => console.error('[AstroCal] Error al registrar Service Worker:', err));
+  });
+}
+
