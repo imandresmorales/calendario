@@ -82,6 +82,72 @@
     --color-holiday: hsl(35, 90%, 62%);
 }
 
+/* Accent Themes definitions */
+[data-accent-theme="violet"] {
+  --accent: hsl(262, 83%, 58%);
+  --accent-hover: hsl(262, 83%, 52%);
+  --accent-glow: rgba(124, 58, 237, 0.1);
+  --border-glow: rgba(124, 58, 237, 0.2);
+}
+[data-theme="dark"][data-accent-theme="violet"] {
+  --accent: hsl(262, 89%, 68%);
+  --accent-hover: hsl(262, 89%, 74%);
+  --accent-glow: rgba(167, 139, 250, 0.2);
+  --border-glow: rgba(167, 139, 250, 0.3);
+}
+
+[data-accent-theme="green"] {
+  --accent: hsl(142, 76%, 36%);
+  --accent-hover: hsl(142, 76%, 30%);
+  --accent-glow: rgba(16, 185, 129, 0.1);
+  --border-glow: rgba(16, 185, 129, 0.2);
+}
+[data-theme="dark"][data-accent-theme="green"] {
+  --accent: hsl(142, 70%, 45%);
+  --accent-hover: hsl(142, 70%, 50%);
+  --accent-glow: rgba(16, 185, 129, 0.2);
+  --border-glow: rgba(16, 185, 129, 0.3);
+}
+
+[data-accent-theme="blue"] {
+  --accent: hsl(217, 91%, 56%);
+  --accent-hover: hsl(217, 91%, 48%);
+  --accent-glow: rgba(37, 99, 235, 0.1);
+  --border-glow: rgba(37, 99, 235, 0.2);
+}
+[data-theme="dark"][data-accent-theme="blue"] {
+  --accent: hsl(217, 91%, 65%);
+  --accent-hover: hsl(217, 91%, 70%);
+  --accent-glow: rgba(37, 99, 235, 0.2);
+  --border-glow: rgba(37, 99, 235, 0.3);
+}
+
+[data-accent-theme="amber"] {
+  --accent: hsl(35, 92%, 50%);
+  --accent-hover: hsl(35, 92%, 43%);
+  --accent-glow: rgba(245, 158, 11, 0.1);
+  --border-glow: rgba(245, 158, 11, 0.2);
+}
+[data-theme="dark"][data-accent-theme="amber"] {
+  --accent: hsl(35, 92%, 58%);
+  --accent-hover: hsl(35, 92%, 63%);
+  --accent-glow: rgba(245, 158, 11, 0.2);
+  --border-glow: rgba(245, 158, 11, 0.3);
+}
+
+[data-accent-theme="rose"] {
+  --accent: hsl(330, 81%, 60%);
+  --accent-hover: hsl(330, 81%, 52%);
+  --accent-glow: rgba(219, 39, 119, 0.1);
+  --border-glow: rgba(219, 39, 119, 0.2);
+}
+[data-theme="dark"][data-accent-theme="rose"] {
+  --accent: hsl(330, 85%, 68%);
+  --accent-hover: hsl(330, 85%, 74%);
+  --accent-glow: rgba(244, 114, 182, 0.2);
+  --border-glow: rgba(244, 114, 182, 0.3);
+}
+
 /* ==========================================================================
    CSS RESET & CORE STYLES
    ========================================================================== */
@@ -3926,3 +3992,33 @@ input[type="checkbox"]:focus-visible {
     transition: none;
   }
 }
+
+/* Color Accent Picker styles */
+.accent-picker-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding: 4px 0;
+}
+
+.accent-dot-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.accent-dot-btn:hover {
+  transform: scale(1.2);
+}
+
+.accent-dot-btn.active {
+  border-color: var(--text-primary);
+  transform: scale(1.1);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+

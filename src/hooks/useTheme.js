@@ -22,8 +22,10 @@ import { useState, useEffect, useCallback } from 'react'
 
 const THEME_KEY        = 'astrocal_theme'
 const CONTRAST_KEY     = 'astrocal_high_contrast'
+const ACCENT_KEY       = 'astrocal_accent_color'
 const VALID_THEMES     = ['light', 'dark']
 const VALID_BOOLEANS   = ['true', 'false']
+const VALID_ACCENTS    = ['violet', 'green', 'blue', 'amber', 'rose']
 
 /**
  * Obtiene el tema preferido del sistema operativo.
@@ -99,6 +101,32 @@ function saveContrast(value) {
   }
 }
 
+/**
+ * Carga el color de acento persistido en localStorage de forma segura.
+ * @returns {string | null}
+ */
+function loadSavedAccent() {
+  try {
+    const saved = localStorage.getItem(ACCENT_KEY)
+    if (saved && VALID_ACCENTS.includes(saved)) return saved
+  } catch (error) {
+    console.warn('[AstroCal] No se pudo acceder a localStorage para el acento:', error.message)
+  }
+  return null
+}
+
+/**
+ * Persiste el color de acento en localStorage de forma segura.
+ * @param {string} accent
+ */
+function saveAccent(accent) {
+  try {
+    localStorage.setItem(ACCENT_KEY, accent)
+  } catch (error) {
+    console.warn('[AstroCal] No se pudo guardar el acento en localStorage:', error.message)
+  }
+}
+
 export function useTheme() {
   const [theme, setTheme] = useState(() => {
     return loadSavedTheme() || getSystemTheme()
@@ -107,6 +135,10 @@ export function useTheme() {
   const [highContrast, setHighContrast] = useState(() => {
     const saved = loadSavedContrast()
     return saved !== null ? saved : getSystemHighContrast()
+  })
+
+  const [accentColor, setAccentColor] = useState(() => {
+    return loadSavedAccent() || 'violet'
   })
 
   // Aplicar tema al atributo data-theme del documento
@@ -118,6 +150,11 @@ export function useTheme() {
   useEffect(() => {
     document.documentElement.setAttribute('data-high-contrast', String(highContrast))
   }, [highContrast])
+
+  // Aplicar acento al atributo data-accent-theme del documento
+  useEffect(() => {
+    document.documentElement.setAttribute('data-accent-theme', accentColor)
+  }, [accentColor])
 
   /**
    * Alterna entre tema claro y oscuro con persistencia.
@@ -141,5 +178,15 @@ export function useTheme() {
     })
   }, [])
 
-  return { theme, toggleTheme, highContrast, toggleHighContrast }
+  /**
+   * Cambia el color de acento con persistencia.
+   */
+  const selectAccentColor = useCallback((accent) => {
+    if (VALID_ACCENTS.includes(accent)) {
+      setAccentColor(accent)
+      saveAccent(accent)
+    }
+  }, [])
+
+  return { theme, toggleTheme, highContrast, toggleHighContrast, accentColor, selectAccentColor }
 }

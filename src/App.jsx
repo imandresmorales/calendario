@@ -105,7 +105,7 @@ function App() {
 
 
   const monthNames = getMonthNames()
-  const { theme, toggleTheme, highContrast, toggleHighContrast } = useTheme()
+  const { theme, toggleTheme, highContrast, toggleHighContrast, accentColor, selectAccentColor } = useTheme()
   const { addToast } = useToast()
 
   // Mejora 39: Favicon dinámico con el día actual del mes
@@ -498,6 +498,25 @@ function App() {
             </button>
             <span className="badge">v1.0.0</span>
           </div>
+        </div>
+
+        <div className="accent-picker-row" aria-label="Color de acento de la aplicación">
+          {[
+            { id: 'violet', color: '#7c3aed', label: 'Violeta' },
+            { id: 'green',  color: '#10b981', label: 'Verde' },
+            { id: 'blue',   color: '#2563eb', label: 'Azul' },
+            { id: 'amber',  color: '#f59e0b', label: 'Ámbar' },
+            { id: 'rose',   color: '#db2777', label: 'Rosa' }
+          ].map((accent) => (
+            <button
+              key={accent.id}
+              className={`accent-dot-btn ${accentColor === accent.id ? 'active' : ''}`}
+              style={{ backgroundColor: accent.color }}
+              onClick={() => selectAccentColor(accent.id)}
+              aria-label={`Color de acento ${accent.label}`}
+              title={`Color de acento ${accent.label}`}
+            />
+          ))}
         </div>
 
         <div className="selected-date-preview">
