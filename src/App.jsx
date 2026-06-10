@@ -150,6 +150,38 @@ function App() {
     return () => clearInterval(id)
   }, [])
 
+  // Estado para el permiso de notificaciones del sistema
+  const [notificationPermission, setNotificationPermission] = useState(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      return Notification.permission
+    }
+    return 'default'
+  })
+
+  const handleRequestNotifications = useCallback(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      Notification.requestPermission().then((permission) => {
+        setNotificationPermission(permission)
+        if (permission === 'granted') {
+          addToast('Notificaciones de escritorio habilitadas', 'success')
+          try {
+            new Notification('AstroCal', {
+              body: '¡Notificaciones de escritorio activadas correctamente!',
+              icon: '/favicon.svg'
+            })
+          } catch (err) {
+            console.warn('[AstroCal] Error al enviar notificación de prueba:', err)
+          }
+        } else if (permission === 'denied') {
+          addToast('Notificaciones bloqueadas por el navegador', 'error')
+        }
+      })
+    } else {
+      addToast('Tu navegador no soporta notificaciones de escritorio', 'error')
+    }
+  }, [addToast])
+
+
   // ¿El día seleccionado es hoy?
   const isSelectedToday = (() => {
     const now = new Date()
@@ -726,6 +758,21 @@ function App() {
               />
             </label>
           </div>
+          {notificationPermission === 'default' && (
+            <button className="notification-setup-btn" onClick={handleRequestNotifications} title="Habilitar notificaciones de escritorio para recordatorios de eventos">
+              🔔 Activar Notificaciones
+            </button>
+          )}
+          {notificationPermission === 'granted' && (
+            <div className="notification-status-text status-granted">
+              <span>🔔 Notificaciones activadas</span>
+            </div>
+          )}
+          {notificationPermission === 'denied' && (
+            <div className="notification-status-text status-denied">
+              <span>🔕 Notificaciones bloqueadas</span>
+            </div>
+          )}
           <button className="clear-all-btn" onClick={handleClearAllEvents} title="Borrar permanentemente todos los eventos">
             🗑️ Borrar todos los eventos
           </button>

@@ -74,6 +74,18 @@ export function useEventReminder(events, addToast) {
             : `"${evt.title}" comienza en ${diff} min (${evt.startTime})`
 
           addToast(msg, 'warning')
+
+          // Disparar notificación del sistema si se tienen permisos (Web Notification API)
+          if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+              new Notification('AstroCal - Recordatorio', {
+                body: msg,
+                icon: '/favicon.svg',
+              })
+            } catch (err) {
+              console.warn('[AstroCal] Error al disparar notificación de sistema:', err)
+            }
+          }
         }
       }
     }
